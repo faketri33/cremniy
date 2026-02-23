@@ -99,8 +99,12 @@ void MainWindow::SaveProjectInCache(const QString project_path){
         lines.removeLast();
     if (!history_file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
     QTextStream out(&history_file);
-    for (const QString& l : lines)
+    for (const QString& l : lines){
+        if (!QDir(l).exists()) continue;
+        if (!QFile::exists(l+"/"+"project.cremniy")) continue;
         out << l << "\n";
+    }
+
     history_file.close();
 }
 

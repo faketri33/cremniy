@@ -143,7 +143,11 @@ void WelcomeForm::SelectProjectInList(){
 }
 
 void WelcomeForm::OpenRecentProjectHandler(){
+    QModelIndex index = history_project_list->currentIndex();
 
+    if (index.isValid()) {
+        OpenProject(index.data().toString());
+    }
 }
 
 void WelcomeForm::OpenProjectHandler()
@@ -155,18 +159,32 @@ void WelcomeForm::OpenProjectHandler()
     dlg.setDirectory(QDir::homePath());
 
     if (dlg.exec() == QDialog::Accepted) {
-        QString file = dlg.selectedFiles().first();
+        OpenProject(dlg.selectedFiles().first());
     }
+}
+
+void WelcomeForm::OpenProject(QString path){
+    if (!QDir(path).exists()) return;
+    if (!QFile::exists(path+"/"+"project.cremniy")) return;
+    QFile project_file(path+"/"+"project.cremniy");
+    if (!project_file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+
+    // Читаем весь файл
+    QByteArray data = project_file.readAll();
+    project_file.close();
+
+    // Парсим JSON
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    QJsonObject project_info = doc.object();
+
+    MainWindow *mw = new MainWindow(path, project_info, nullptr);
+    mw->show();
+    this->destroy();
 }
 
 void WelcomeForm::CreateProjectHandler()
 {
     stack->setCurrentIndex(1);
-}
-
-void WelcomeForm::DeleteProjectHandler()
-{
-    qDebug() << 1;
 }
 
 void WelcomeForm::L2BackButton()

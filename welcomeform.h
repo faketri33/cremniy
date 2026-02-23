@@ -36,13 +36,13 @@ private:
     QListView *history_project_list;
     void L2CreateProject(QString name, QString path, QString language);
     void SetProjectHistoryList();
+    void OpenProject(QString path);
 
 private slots:
     void SelectProjectInList();
     void OpenRecentProjectHandler();
     void OpenProjectHandler();
     void CreateProjectHandler();
-    void DeleteProjectHandler();
     void L2BackButton();
     void L2CreateButton();
 };
