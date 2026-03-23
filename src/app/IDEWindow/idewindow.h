@@ -64,6 +64,7 @@ private:
     QMenu* m_editMenu;
     QMenu* m_viewMenu;
     QMenu* m_toolsMenu;
+    QMenu* m_referencesMenu;
     QMenu* m_gitMenu;
 
     // - - File Menu - -
@@ -80,12 +81,11 @@ private:
 
     // - - Tools Menu - -
 
-    // - Tools -
     QAction* m_tools_reverseCalculator;
 
-    // - Tip Tools -
-    QAction* m_tools_asciiChars;
-    QAction* m_tools_keybScancodes;
+    // - - References - -
+    QAction* m_references_asciiChars;
+    QAction* m_references_keybScancodes;
 
     // - - Git Menu - -
     QAction* m_git_commit;

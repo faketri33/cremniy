@@ -5,7 +5,7 @@
 #include <QtEndian>
 
 static bool registered = [](){
-    FormatPageFactory::instance().registerPage("MBRPage", [](){
+    FormatPageFactory::instance().registerPage("4", [](){
         return new MBRPage();
     });
     return true;

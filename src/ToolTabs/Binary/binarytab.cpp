@@ -1,4 +1,4 @@
-#include "hexviewtab.h"
+#include "binarytab.h"
 #include "verticaltabstyle.h"
 #include <qapplication.h>
 #include <qboxlayout.h>
@@ -12,13 +12,13 @@
 #include "core/ToolTabFactory.h"
 
 static bool registered = [](){
-    ToolTabFactory::instance().registerTab("HexViewTab", [](){
-        return new HexViewTab();
+    ToolTabFactory::instance().registerTab("2", [](){
+        return new BinaryTab();
     });
     return true;
 }();
 
-HexViewTab::HexViewTab(QWidget *parent)
+BinaryTab::BinaryTab(QWidget *parent)
     : ToolTab{parent}
 {
     // - - Tab Widgets - -
@@ -51,7 +51,7 @@ HexViewTab::HexViewTab(QWidget *parent)
             pageView->addWidget(fpage);
             pageList->addItem(fpage->pageName());
 
-            connect(fpage, &FormatPage::modifyData, this, &HexViewTab::pageModifyDataSlot);
+            connect(fpage, &FormatPage::modifyData, this, &BinaryTab::pageModifyDataSlot);
             connect(fpage, &FormatPage::dataEqual, this, &ToolTab::dataEqual);
         }
     }
@@ -73,16 +73,16 @@ HexViewTab::HexViewTab(QWidget *parent)
 
 // - public slots -
 
-void HexViewTab::pageModifyDataSlot(){
+void BinaryTab::pageModifyDataSlot(){
     setModifyIndicator(true);
     emit modifyData();
 }
 
-void HexViewTab::setFile(QString filepath){
+void BinaryTab::setFile(QString filepath){
     m_fileContext = new FileContext(filepath);
 }
 
-void HexViewTab::setTabData(){
+void BinaryTab::setTabData(){
     qDebug() << "HexViewTab: setTabData(): start";
 
     QByteArray data = FileManager::openFile(m_fileContext);
@@ -101,7 +101,7 @@ void HexViewTab::setTabData(){
     qDebug() << "HexViewTab: setTabData(): success";
 };
 
-void HexViewTab::saveTabData() {
+void BinaryTab::saveTabData() {
     qDebug() << "HexViewTab: saveTabData";
 
     FormatPage* fpage = dynamic_cast<FormatPage*>(pageView->currentWidget());

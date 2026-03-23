@@ -29,6 +29,7 @@ IDEWindow::IDEWindow(QString ProjectPath, QWidget *parent)
     m_editMenu = m_menuBar->addMenu("Edit");
     m_viewMenu = m_menuBar->addMenu("View");
     m_toolsMenu = m_menuBar->addMenu("Tools");
+    m_referencesMenu = m_menuBar->addMenu("References");
     m_gitMenu = m_menuBar->addMenu("Git");
 
     // - - File Menu - -
@@ -46,8 +47,10 @@ IDEWindow::IDEWindow(QString ProjectPath, QWidget *parent)
 
     // - - Tools Menu - -
     m_tools_reverseCalculator = new QAction("Reverse Calculator", this);
-    m_tools_asciiChars = new QAction("ASCII characters", this);
-    m_tools_keybScancodes = new QAction("Keyboard Scancodes", this);
+
+    // - - References Menu - -
+    m_references_asciiChars = new QAction("ASCII characters", this);
+    m_references_keybScancodes = new QAction("Keyboard Scancodes", this);
 
     // - - Edit Menu - -
     m_edit_settings = new QAction("Settings", this);
@@ -95,8 +98,10 @@ IDEWindow::IDEWindow(QString ProjectPath, QWidget *parent)
     // - Tools Menu -
     m_toolsMenu->addAction(m_tools_reverseCalculator);
     m_toolsMenu->addSeparator();
-    m_toolsMenu->addAction(m_tools_asciiChars);
-    m_toolsMenu->addAction(m_tools_keybScancodes);
+
+    // - References Menu -
+    m_referencesMenu->addAction(m_references_asciiChars);
+    m_referencesMenu->addAction(m_references_keybScancodes);
 
     // - Git Menu -
     m_gitMenu->addAction(m_git_commit);

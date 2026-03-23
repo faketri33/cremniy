@@ -12,7 +12,7 @@
 #include "core/ToolTabFactory.h"
 
 static bool registered = [](){
-    ToolTabFactory::instance().registerTab("CodeEditorTab", [](){
+    ToolTabFactory::instance().registerTab("1", [](){
         return new CodeEditorTab();
     });
     return true;

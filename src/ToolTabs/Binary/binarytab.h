@@ -1,12 +1,12 @@
-#ifndef HEXVIEWTAB_H
-#define HEXVIEWTAB_H
+#ifndef BINARYTAB_H
+#define BINARYTAB_H
 
 #include "core/ToolTab.h"
 #include <QWidget>
 #include <qfileinfo.h>
 #include <qstackedwidget.h>
 
-class HexViewTab : public ToolTab
+class BinaryTab : public ToolTab
 {
     Q_OBJECT
 
@@ -15,10 +15,10 @@ private:
     QStackedWidget* pageView;
 
 public:
-    explicit HexViewTab(QWidget *parent = nullptr);
+    explicit BinaryTab(QWidget *parent = nullptr);
 
-    QString toolName() const override { return "HEX"; };
-    QIcon toolIcon() const override { return QIcon(":/icons/hex.png"); };
+    QString toolName() const override { return "Binary"; };
+    QIcon toolIcon() const override { return QIcon(":/icons/binary.png"); };
 
 public slots:
 
@@ -31,4 +31,4 @@ public slots:
 
 };
 
-#endif // HEXVIEWTAB_H
+#endif // BINARYTAB_H

@@ -2,7 +2,7 @@
 #include "formatpagefactory.h"
 
 static bool registered = [](){
-    FormatPageFactory::instance().registerPage("RAWPage", [](){
+    FormatPageFactory::instance().registerPage("1", [](){
         return new RAWPage();
     });
     return true;

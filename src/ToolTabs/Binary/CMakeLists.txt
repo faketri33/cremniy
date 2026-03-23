@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/hexviewtab.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/hexviewtab.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/binarytab.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binarytab.h
     ${CMAKE_CURRENT_SOURCE_DIR}/formatpage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/formatpage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/formatpagefactory.h

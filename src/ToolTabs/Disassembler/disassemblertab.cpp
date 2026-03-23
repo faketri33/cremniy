@@ -33,7 +33,7 @@
 #include "core/ToolTabFactory.h"
 
 static bool registered = [](){
-    ToolTabFactory::instance().registerTab("DisassemblerTab", [](){
+    ToolTabFactory::instance().registerTab("3", [](){
         return new DisassemblerTab();
     });
     return true;
