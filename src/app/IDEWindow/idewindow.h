@@ -8,6 +8,7 @@
 #include <qmenubar.h>
 #include <qsplitter.h>
 #include <qstatusbar.h>
+#include "widgets/terminal/terminalwidget.h"
 
 class IDEWindow : public QMainWindow
 {
@@ -33,6 +34,7 @@ private slots:
     */
     void on_Tree_ContextMenu(const QPoint &pos);
 
+
 private:
 
     /**
@@ -45,11 +47,16 @@ private:
     QStatusBar* m_statusBar;
     QWidget* m_mainWidget;
     QHBoxLayout* m_mainLayout;
-    QSplitter* m_mainSplitter;
+    QSplitter* m_verticalSplitter;  // splitter (вверх вниз)
+    QSplitter* m_mainSplitter; 
 
     // - - General Widgets - -
     FilesTabWidget* m_filesTabWidget;
     FileTreeView* m_filesTreeView;
+
+    // - - Terminal Widget - -
+    TerminalWidget* m_terminal;
+
 
 public slots:
 
@@ -79,6 +86,11 @@ public slots:
      * Открывает окно Settings
     */
     void on_openSettings();
+
+    /**
+     * @brief Отображение терминала
+    */
+    void on_Toggle_Terminal(bool checked);
 
 
 signals:

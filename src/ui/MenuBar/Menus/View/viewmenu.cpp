@@ -12,5 +12,16 @@ ViewMenu::ViewMenu() : BaseMenu("View") {
     m_wordWrap = new QAction("Word Wrap", this);
     m_wordWrap->setCheckable(true);
     m_wordWrap->setChecked(true);
+
+    m_terminal = new QAction("Show terminal", this);
+    m_terminal->setCheckable(true);
+    m_terminal->setChecked(true);
+
     this->addAction(m_wordWrap);
+    this->addSeparator();
+    this->addAction(m_terminal);
+}
+
+void ViewMenu::setupConnections(IDEWindow* ideWind){
+    connect(m_terminal, &QAction::triggered, ideWind, &IDEWindow::on_Toggle_Terminal);
 }
