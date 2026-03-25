@@ -19,6 +19,7 @@
 <br>
 
 - [ ] [Реализация кастомного QPlainText для Code Editor](https://github.com/igmunv/cremniy/issues/56)
+- [ ] [Оптимизировать хранение данных у QHexView](https://github.com/igmunv/cremniy/issues/57)
 - [ ] [Улучшение дизайна Disassembler](https://github.com/igmunv/cremniy/issues/55)
 - [ ] [Основы базовой архитектуры для обеспечения расширяемости](https://github.com/igmunv/cremniy/issues/29)
 - [ ] [Сборка и запуск проекта пользователя](https://github.com/igmunv/cremniy/issues/6)
