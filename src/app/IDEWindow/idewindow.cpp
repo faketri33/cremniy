@@ -6,7 +6,6 @@
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <QApplication>
-#include "globalwidgetsmanager.h"
 #include "projectshistorymanager.h"
 #include "app/WelcomeWindow/welcomeform.h"
 #include "dialogs/settingsdialog.h"
