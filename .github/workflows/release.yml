@@ -41,7 +41,7 @@ jobs:
         if: runner.os != 'Windows'
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: '6.9.2'
           cache: true
 
       - name: Install Linux dependencies
@@ -75,22 +75,14 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
         run: |
-          if [ "${{ runner.os }}" = "macOS" ]; then
-            # Передаем флаги во ВСЕ внутренние тесты компилятора CMake
-            cmake -B build -S src -G "Unix Makefiles" \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-              #-DCMAKE_EXE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              #-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              #-DCMAKE_MODULE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              #-DCMAKE_REQUIRED_FLAGS="-Wl,-weak_framework,AGL"
-          else
-            cmake -B build -S src -G "Unix Makefiles" \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-          fi
+          # AGL.framework больше не поставляется в новых Xcode/macOS SDK
+          # (устаревший фреймворк для legacy OpenGL), поэтому
+          # -weak_framework AGL больше не нужен и ломает линковку
+          # ("framework 'AGL' not found") - используем обычную конфигурацию.
+          cmake -B build -S src -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
           
       - name: Build
         run: cmake --build build --config Release --parallel
@@ -194,7 +186,9 @@ jobs:
         run: cp rpm/cremniy.spec "$HOME/rpmbuild/SPECS/"
 
       - name: Build RPM
-        run: rpmbuild -ba "$HOME/rpmbuild/SPECS/cremniy.spec"
+        run: |
+            echo '%debug_package %{nil}' >> ~/.rpmmacros
+            rpmbuild -bb "$HOME/rpmbuild/SPECS/cremniy.spec"
 
       - name: Rename RPMs for clarity
         run: |
@@ -211,7 +205,9 @@ jobs:
 
   release:
     name: Create Release
-    needs: build
+    needs:
+      - build
+      - build-rpm
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
@@ -231,6 +227,7 @@ jobs:
             artifacts/**/*.tar.gz
             artifacts/**/*.zip
             artifacts/**/*.AppImage
+            artifacts/**/*.rpm
           draft: false
           prerelease: false
           generate_release_notes: true
