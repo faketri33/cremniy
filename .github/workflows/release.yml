@@ -80,11 +80,11 @@ jobs:
             cmake -B build -S src -G "Unix Makefiles" \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_EXE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              -DCMAKE_MODULE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
-              -DCMAKE_REQUIRED_FLAGS="-Wl,-weak_framework,AGL"
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+              #-DCMAKE_EXE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
+              #-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
+              #-DCMAKE_MODULE_LINKER_FLAGS="-Wl,-weak_framework,AGL" \
+              #-DCMAKE_REQUIRED_FLAGS="-Wl,-weak_framework,AGL"
           else
             cmake -B build -S src -G "Unix Makefiles" \
               -DCMAKE_BUILD_TYPE=Release \
