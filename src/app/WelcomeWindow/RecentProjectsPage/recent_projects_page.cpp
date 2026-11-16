@@ -12,7 +12,7 @@
 
 #include "recent_projects_page.h"
 #include "../ProjectCard/project_card.h"
-#include "projects_history_manager.h"
+#include "core/project/projects_history_manager.h"
 
 #include <QFileDialog>
 #include <QHBoxLayout>

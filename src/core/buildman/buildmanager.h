@@ -1,7 +1,7 @@
 #ifndef BUILDMANAGER_H
 #define BUILDMANAGER_H
 
-#include "logView/logview.h"
+#include "widgets/logView/logview.h"
 #include <qprocess.h>
 
 class BuildManager : public QObject {

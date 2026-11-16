@@ -4,7 +4,7 @@
 #include <QTabWidget>
 #include "core/modules/ModuleManager.h"
 #include "core/FindEngine/findtypes.h"
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 #include "widgets/filetab.h"
 
 class AppContext;

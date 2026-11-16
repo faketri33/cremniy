@@ -19,7 +19,7 @@
 #include <qboxlayout.h>
 #include <qfileinfo.h>
 #include <QPushButton>
-#include "buildTab/buildtab.h"
+#include "widgets/buildTab/buildtab.h"
 
 namespace {
 

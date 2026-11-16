@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <qlabel.h>
 #include <qlineedit.h>
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 
 class ConfigureBuild : public QDialog {
     Q_OBJECT

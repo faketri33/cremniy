@@ -13,7 +13,7 @@
 #ifndef PROJECT_CARD_H
 #define PROJECT_CARD_H
 
-#include "projects_history_manager.h"
+#include "core/project/projects_history_manager.h"
 #include <QWidget>
 
 class ProjectCard : public QWidget {

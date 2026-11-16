@@ -1,4 +1,9 @@
-target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/dataconverterdialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/dataconverterdialog.h
+add_library(cremniy_module_data_converter STATIC
+    dataconverterdialog.cpp
+    dataconverterdialog.h
+)
+
+target_link_libraries(cremniy_module_data_converter
+    PUBLIC  cremniy_module_api
+    PRIVATE cremniy_warnings
 )

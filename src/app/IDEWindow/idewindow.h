@@ -10,7 +10,7 @@
 #include <qsplitter.h>
 #include <qstatusbar.h>
 #include <QLabel>
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 
 class TerminalPanel;
 

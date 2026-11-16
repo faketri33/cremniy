@@ -15,7 +15,7 @@
 #include "../CreateProjectPage/create_project_page.h"
 #include "app/AppContext.h"
 #include "app/IDEWindow/idewindow.h"
-#include "projects_history_manager.h"
+#include "core/project/projects_history_manager.h"
 
 #include <QDir>
 #include <QFile>

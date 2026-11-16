@@ -1,6 +1,11 @@
-target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/shellcodeengine.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shellcodeengine.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/shellcodegeneratordialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shellcodegeneratordialog.h
+add_library(cremniy_module_shellcode_generator STATIC
+    shellcodeengine.cpp
+    shellcodeengine.h
+    shellcodegeneratordialog.cpp
+    shellcodegeneratordialog.h
+)
+
+target_link_libraries(cremniy_module_shellcode_generator
+    PUBLIC  cremniy_module_api
+    PRIVATE cremniy_warnings CodeEditor
 )

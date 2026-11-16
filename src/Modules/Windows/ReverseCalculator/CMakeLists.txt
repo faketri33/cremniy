@@ -12,11 +12,14 @@ target_link_libraries(cremniy_reverse_calculator_engine
     PRIVATE cremniy_warnings
 )
 
-target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/reversecalculatordialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/reversecalculatordialog.h
+add_library(cremniy_module_reverse_calculator STATIC
+    reversecalculatordialog.cpp
+    reversecalculatordialog.h
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_reverse_calculator_engine)
+target_link_libraries(cremniy_module_reverse_calculator
+    PUBLIC  cremniy_module_api
+    PRIVATE cremniy_warnings cremniy_reverse_calculator_engine
+)
 
 if(BUILD_TESTING)
     qt_add_executable(reversecalculatorenginetest tests/reversecalculatorenginetest.cpp)
