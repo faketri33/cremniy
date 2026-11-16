@@ -9,13 +9,14 @@
 #include <QSplitter>
 
 class CustomCodeEditor;
+class LanguageRegistry;
 class FileDataBuffer;
 class QTimer;
 
 class ShellcodeGeneratorDialog : public WindowBase {
     Q_OBJECT
 public:
-    explicit ShellcodeGeneratorDialog(QWidget *parent = nullptr);
+    explicit ShellcodeGeneratorDialog(const LanguageRegistry &languageRegistry, QWidget *parent = nullptr);
 
 private slots:
     void onAssemble();
@@ -23,6 +24,7 @@ private slots:
     void onClear();
 
 private:
+    const LanguageRegistry &m_languageRegistry;
     void setupUi();
     void setupToolbar(QWidget *parent);
     void setupEditors(QWidget *parent);

@@ -161,12 +161,6 @@ qt_add_executable(${PROJECT_NAME}
         core/locale/LanguageManager.h
 
     # Core
-    core/file/filecontext.h
-    core/file/FileDataBuffer.cpp
-    core/file/FileDataBuffer.h
-    core/file/filemanager.cpp
-    core/file/filemanager.h
-
     core/project/projects_history_manager.cpp
     core/project/projects_history_manager.h
 
@@ -241,6 +235,9 @@ qt_add_resources(${PROJECT_NAME} "phoicons"
 )
 
 # - - Libs - -
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/file/ ${CMAKE_BINARY_DIR}/core/file/)
+target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_file_core)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/modules/ ${CMAKE_BINARY_DIR}/core/modules/)
 target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_module_manager)
 

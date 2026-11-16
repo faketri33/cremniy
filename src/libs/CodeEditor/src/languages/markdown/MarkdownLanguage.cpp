@@ -2,11 +2,9 @@
 
 #include "markdown/MarkdownHighlighter.h"
 
-namespace {
-
-void registerMarkdownLanguage()
+void registerMarkdownLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("markdown"),
         QStringLiteral("Markdown"),
         {QStringLiteral("md"), QStringLiteral("markdown")},
@@ -15,7 +13,3 @@ void registerMarkdownLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new MarkdownHighlighter(document); }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerMarkdownLanguage)

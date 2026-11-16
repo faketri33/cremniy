@@ -3,6 +3,8 @@
 
 #include <QString>
 
+class LanguageRegistry;
+
 /**
  * @brief Тонкая обёртка над LanguageRegistry для обратной совместимости.
  *
@@ -19,15 +21,15 @@ namespace EditorLanguageSupport {
 /// Для расширений без зарегистрированного языка возвращает исходное
 /// значение в нижнем регистре (используется, например, для показа
 /// расширения в UI, даже если оно не поддерживается).
-QString normalizedFileExt(const QString& ext);
+QString normalizedFileExt(const LanguageRegistry& registry, const QString& ext);
 
 /// Определяет язык по имени файла (включая точные имена вроде "Dockerfile")
 /// и возвращает его id. Полная замена как старому syntaxKeyForPath, так и
 /// комбинации suffix-эвристик, которая раньше была здесь же.
-QString syntaxKeyForFileName(const QString& fileName);
+QString syntaxKeyForFileName(const LanguageRegistry& registry, const QString& fileName);
 
 /// Префикс однострочного комментария для языка с данным id.
-QString lineCommentPrefix(const QString& syntaxKey);
+QString lineCommentPrefix(const LanguageRegistry& registry, const QString& syntaxKey);
 
 } // namespace EditorLanguageSupport
 

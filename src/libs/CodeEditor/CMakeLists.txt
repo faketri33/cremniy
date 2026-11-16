@@ -65,7 +65,6 @@ target_include_directories(CodeEditor PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/widgets
     ${CMAKE_CURRENT_SOURCE_DIR}/src/widgets
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/QCodeEditor/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../core/file
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/QCodeEditor/src
 )
 
@@ -77,10 +76,16 @@ target_include_directories(CodeEditor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/languages
 )
 
-target_link_libraries(CodeEditor PUBLIC Qt6::Widgets)
+target_link_libraries(CodeEditor PUBLIC Qt6::Widgets cremniy_file_core)
 
 # src/languages/CMakeLists.txt globs and adds every language subdirectory
 # (one language = one directory = its own CMakeLists.txt), the same pattern
 # used by src/ui/MenuBar/Menus/. Adding a new language never requires
 # touching this file — see docs/adding_a_language.md.
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/languages)
+
+if(BUILD_TESTING)
+    qt_add_executable(languageregistrytest tests/languageregistrytest.cpp)
+    target_link_libraries(languageregistrytest PRIVATE CodeEditor Qt6::Test)
+    add_test(NAME languageregistrytest COMMAND languageregistrytest)
+endif()

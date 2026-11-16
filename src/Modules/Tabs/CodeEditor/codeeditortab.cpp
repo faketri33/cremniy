@@ -21,12 +21,13 @@ static QString displayName() {
 }
 
 void registerCodeEditorTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "always", [](AppContext& context) { return new CodeEditorTab(context.appSettings()); }, 100);
+    manager.registerModule<TabBase>(&displayName, "always", [](AppContext& context) { return new CodeEditorTab(context.appSettings(), context.languageRegistry()); }, 100);
 }
 
-CodeEditorTab::CodeEditorTab(AppSettings& settings, QWidget* parent)
+CodeEditorTab::CodeEditorTab(AppSettings& settings, const LanguageRegistry& languageRegistry, QWidget* parent)
     : TabBase(parent)
     , m_settings(settings)
+    , m_languageRegistry(languageRegistry)
 {
 
     auto* rootLayout = new QVBoxLayout(this);
@@ -34,7 +35,7 @@ CodeEditorTab::CodeEditorTab(AppSettings& settings, QWidget* parent)
     rootLayout->setSpacing(0);
 
     // - - Code Editor - -
-    m_codeEditorWidget = new CustomCodeEditor(this);
+    m_codeEditorWidget = new CustomCodeEditor(m_languageRegistry, this);
     m_overlayWidget = new QWidget(this);
     auto overlayLayout = new QVBoxLayout(m_overlayWidget);
     overlayLayout->setAlignment(Qt::AlignCenter);
@@ -157,7 +158,7 @@ bool CodeEditorTab::revealSearchMatch(int oneBasedLine, int zeroBasedColumn, int
 void CodeEditorTab::setFile(QString filepath)
 {
     m_fileContext = new FileContext(filepath);
-    m_codeEditorWidget->setFileExt(CustomCodeEditor::syntaxKeyForPath(filepath));
+    m_codeEditorWidget->setFileExt(m_codeEditorWidget->syntaxKeyForPath(filepath));
     m_currentLang = detectLanguage(filepath);
 
     requestBlameUpdate();
@@ -227,11 +228,11 @@ void CodeEditorTab::refreshGitBlame()
     requestBlameUpdate();
 }
 
-QString CodeEditorTab::detectLanguage(const QString& filePath)
+QString CodeEditorTab::detectLanguage(const QString& filePath) const
 {
     // Single source of truth: LanguageRegistry. See docs/adding_a_language.md.
     const QFileInfo fi(filePath);
-    const LanguageDefinition& language = LanguageRegistry::instance().resolveForFile(fi.fileName());
+    const LanguageDefinition& language = m_languageRegistry.resolveForFile(fi.fileName());
     if (&language != &LanguageRegistry::plainTextLanguage())
         return language.displayName;
 
@@ -265,7 +266,7 @@ void CodeEditorTab::setTabData()
                 m_codeEditorWidget->setGitBlameEnabled(false);
             } else {
                 m_codeEditorWidget->setWordWrapEnabled(true);
-                m_codeEditorWidget->setFileExt(CustomCodeEditor::syntaxKeyForPath(m_fileContext->filePath()));
+                m_codeEditorWidget->setFileExt(m_codeEditorWidget->syntaxKeyForPath(m_fileContext->filePath()));
                 m_codeEditorWidget->setGitBlameEnabled(m_gitBlameEnabled);
             }
         }

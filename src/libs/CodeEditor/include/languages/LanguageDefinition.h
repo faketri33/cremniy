@@ -20,7 +20,7 @@ class QTextDocument;
  *
  * LanguageDefinition не создаётся вручную конечными потребителями —
  * он регистрируется в LanguageRegistry через LanguageRegistry::registerLanguage()
- * или макрос CREMNIY_REGISTER_LANGUAGE (см. LanguageRegistry.h).
+ * или функцию register<Name>Language (см. LanguageRegistration.cpp).
  */
 struct LanguageDefinition {
     /// Уникальный ключ языка, например "python", "rust", "cpp".

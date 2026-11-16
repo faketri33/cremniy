@@ -11,7 +11,7 @@ set_target_properties(${PROJECT_NAME}
         AUTOMOC ON
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::Widgets)
+target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::Widgets cremniy_file_core)
 
 target_sources(${PROJECT_NAME}
     PRIVATE 
@@ -57,8 +57,6 @@ target_sources(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/include
 )
 
 if(QHEXVIEW_ENABLE_DIALOGS)

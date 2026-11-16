@@ -1,6 +1,6 @@
 #include "project_info_manager.h"
-#include "filemanager.h"
-#include "filecontext.h"
+#include "core/file/filemanager.h"
+#include "core/file/filecontext.h"
 
 
 QString ProjectInfoManager::projectInfoFilePath(const QString &projectPath) {

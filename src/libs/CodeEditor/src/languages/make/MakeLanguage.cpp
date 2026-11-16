@@ -5,11 +5,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerMakeLanguage()
+void registerMakeLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("make"),
         QStringLiteral("Makefile"),
         {QStringLiteral("mk"), QStringLiteral("make")},
@@ -18,7 +16,7 @@ void registerMakeLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new MakefileHighlighter(document); }
     });
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("cmake"),
         QStringLiteral("CMake"),
         {QStringLiteral("cmake")},
@@ -34,7 +32,3 @@ void registerMakeLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerMakeLanguage)

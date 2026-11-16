@@ -4,11 +4,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerIniLanguage()
+void registerIniLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("ini"),
         QStringLiteral("INI"),
         {QStringLiteral("ini"), QStringLiteral("cfg"), QStringLiteral("conf"), QStringLiteral("properties"),
@@ -25,7 +23,3 @@ void registerIniLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerIniLanguage)

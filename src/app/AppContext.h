@@ -5,6 +5,7 @@
 #include "core/locale/LanguageManager.h"
 #include "core/modules/ModuleManager.h"
 #include "core/settings/appsettings.h"
+#include "libs/CodeEditor/include/languages/LanguageRegistry.h"
 #include "core/settings/settingsregistry.h"
 #include "ui/MenuBar/menufactory.h"
 
@@ -23,6 +24,7 @@ public:
     AppContext(const AppContext &) = delete;
     AppContext &operator=(const AppContext &) = delete;
 
+    LanguageRegistry &languageRegistry() { return m_languageRegistry; }
     AppSettings &appSettings() { return m_appSettings; }
     SettingsRegistry &settingsRegistry() { return m_settingsRegistry; }
     ModuleManager &moduleManager() { return m_moduleManager; }
@@ -32,6 +34,7 @@ public:
 
 private:
     LanguageManager m_languageManager{m_appSettings};
+    LanguageRegistry m_languageRegistry;
     SettingsRegistry m_settingsRegistry;
     AppSettings m_appSettings{m_settingsRegistry};
     ModuleManager m_moduleManager;

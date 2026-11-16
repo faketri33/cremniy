@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerTomlLanguage()
+void registerTomlLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("toml"),
         QStringLiteral("TOML"),
         {QStringLiteral("toml")},
@@ -24,7 +22,3 @@ void registerTomlLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerTomlLanguage)

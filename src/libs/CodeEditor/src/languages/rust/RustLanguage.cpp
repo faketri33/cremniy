@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerRustLanguage()
+void registerRustLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("rust"),
         QStringLiteral("Rust"),
         {QStringLiteral("rs")},
@@ -44,7 +42,3 @@ void registerRustLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerRustLanguage)

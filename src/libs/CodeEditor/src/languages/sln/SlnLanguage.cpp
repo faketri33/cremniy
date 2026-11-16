@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerSlnLanguage()
+void registerSlnLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("sln"),
         QStringLiteral("Visual Studio Solution"),
         {QStringLiteral("sln")},
@@ -26,7 +24,3 @@ void registerSlnLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerSlnLanguage)

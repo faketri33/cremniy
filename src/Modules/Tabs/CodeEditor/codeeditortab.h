@@ -7,6 +7,7 @@
 #include <QWidget>
 
 class AppSettings;
+class LanguageRegistry;
 
 class CodeEditorTab : public TabBase
 {
@@ -14,6 +15,7 @@ class CodeEditorTab : public TabBase
 
 private:
     AppSettings &m_settings;
+    const LanguageRegistry &m_languageRegistry;
     /**
      * @brief Виджет редактора кода
     */
@@ -36,11 +38,11 @@ private:
     QShortcut* m_goToLineShortcut = nullptr;
     QString m_currentLang = "Plain Text";
 
-    static QString detectLanguage(const QString& filePath);
+    QString detectLanguage(const QString& filePath) const;
     void openGoToLineDialog();
 
 public:
-    explicit CodeEditorTab(AppSettings &settings, QWidget *parent = nullptr);
+    explicit CodeEditorTab(AppSettings &settings, const LanguageRegistry &languageRegistry, QWidget *parent = nullptr);
 
     QIcon icon() const override { return QIcon(":/icons/code.svg"); };
     bool gitBlameEnabled() const override { return m_gitBlameEnabled; }

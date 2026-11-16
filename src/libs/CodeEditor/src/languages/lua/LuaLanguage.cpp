@@ -4,11 +4,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerLuaLanguage()
+void registerLuaLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("lua"),
         QStringLiteral("Lua"),
         {QStringLiteral("lua")},
@@ -24,7 +22,3 @@ void registerLuaLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerLuaLanguage)

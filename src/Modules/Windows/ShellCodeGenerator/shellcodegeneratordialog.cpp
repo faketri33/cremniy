@@ -1,4 +1,5 @@
 #include "shellcodegeneratordialog.h"
+#include "app/AppContext.h"
 #include "shellcodeengine.h"
 
 #include "core/file/FileDataBuffer.h"
@@ -23,7 +24,7 @@ static QString displayName() {
 }
 
 void registerShellcodeGeneratorDialog(ModuleManager& manager) {
-    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new ShellcodeGeneratorDialog(); });
+    manager.registerModule<WindowBase>(&displayName, "", [](AppContext& context) { return new ShellcodeGeneratorDialog(context.languageRegistry()); });
 }
 
 struct ArchEntry {
@@ -48,8 +49,9 @@ static const StyleEntry kStyles[] = {
 };
 static constexpr int kStyleCount = std::size(kStyles);
 
-ShellcodeGeneratorDialog::ShellcodeGeneratorDialog(QWidget *parent)
+ShellcodeGeneratorDialog::ShellcodeGeneratorDialog(const LanguageRegistry &languageRegistry, QWidget *parent)
     : WindowBase(parent)
+    , m_languageRegistry(languageRegistry)
 {
     setWindowTitle(tr("Shellcode Generator"));
     setModal(false);
@@ -155,7 +157,7 @@ void ShellcodeGeneratorDialog::setupEditors(QWidget *parent) {
         label->setStyleSheet(QStringLiteral("font-weight: 600; font-size: 12px; color: #a1a1aa; padding: 2px 4px;"));
         layout->addWidget(label);
         buffer = new FileDataBuffer(this);
-        editor = new CustomCodeEditor(container);
+        editor = new CustomCodeEditor(m_languageRegistry, container);
         editor->setBuffer(buffer);
         layout->addWidget(editor, 1);
         return container;

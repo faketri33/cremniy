@@ -4,11 +4,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerXmlLanguage()
+void registerXmlLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("xml"),
         QStringLiteral("XML"),
         {QStringLiteral("xml"), QStringLiteral("xaml"), QStringLiteral("svg"), QStringLiteral("vcxproj"),
@@ -27,7 +25,3 @@ void registerXmlLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerXmlLanguage)

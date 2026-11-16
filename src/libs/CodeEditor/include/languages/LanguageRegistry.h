@@ -18,16 +18,18 @@ class QTextDocument;
  *   - получить префикс комментария для этого языка;
  *   - создать хайлайтер для документа.
  *
- * Языки НЕ регистрируются вручную в этом файле или в CustomCodeEditor.cpp.
- * Каждый язык живёт в своей директории src/languages/<name>/ и регистрирует себя
- * сам при старте программы через макрос CREMNIY_REGISTER_LANGUAGE (ниже) —
- * то есть добавление языка сводится к добавлению одного нового файла.
+ * Реестр — обычный объект без глобального состояния: его создаёт composition
+ * root приложения (AppContext) и передаёт редакторам явно.
+ * Языки НЕ регистрируются в этом файле или в CustomCodeEditor.cpp. Каждый
+ * язык живёт в своей директории src/languages/<name>/ и предоставляет функцию
+ * `void register<Name>Language(LanguageRegistry&)`; все они перечислены в
+ * registerAllLanguages() (src/languages/core/LanguageRegistration.cpp).
  *
  * Подробное руководство: docs/adding_a_language.md (docs/adding_a_language_ru.md).
  */
 class LanguageRegistry {
 public:
-    static LanguageRegistry& instance();
+    LanguageRegistry() = default;
 
     /// Регистрирует язык. Повторная регистрация одного и того же id
     /// перезаписывает предыдущее определение (полезно для тестов/патчей),
@@ -58,44 +60,9 @@ public:
     static const LanguageDefinition& plainTextLanguage();
 
 private:
-    LanguageRegistry() = default;
     QHash<QString, LanguageDefinition> m_byId;
     QHash<QString, QString> m_idByExtension;
     QHash<QString, QString> m_idByExactFileName;
 };
-
-/// Регистрирует функцию, которая будет вызвана один раз при старте программы
-/// и должна вызвать LanguageRegistry::instance().registerLanguage(...).
-///
-/// Пример использования — в конце файла src/languages/python/PythonLanguage.cpp:
-///
-///     CREMNIY_REGISTER_LANGUAGE(registerPythonLanguage)
-///
-/// где registerPythonLanguage — функция void(), объявленная в этом же файле.
-/// См. docs/adding_a_language.md для полного примера.
-///
-/// Реализация НЕ полагается только на порядок статической инициализации:
-/// поскольку CodeEditor собирается как статическая библиотека, линкер волен
-/// отбросить .o-файл языка целиком, если на него нет ни одной явной ссылки
-/// (побочный эффект конструктора статического объекта для линкера "ссылкой"
-/// не считается). Поэтому макрос дополнительно объявляет функцию с внешним
-/// связыванием (`<имя>_forceLink`), на которую src/languages/core/LanguageRegistration.cpp
-/// ссылается явно, а main() вызывает registerAllLanguages() один раз при
-/// старте программы, до создания первого CustomCodeEditor — это гарантирует,
-/// что object file языка попадёт в финальный бинарник независимо от
-/// поведения линкера.
-///
-/// При добавлении нового языка: помимо CREMNIY_REGISTER_LANGUAGE в новом
-/// .cpp-файле нужно добавить одну строку (extern-объявление + вызов) в
-/// src/languages/core/LanguageRegistration.cpp — см. комментарий в том файле
-/// и docs/adding_a_language.md.
-#define CREMNIY_REGISTER_LANGUAGE(registerFn)                                 \
-    namespace {                                                              \
-    struct RegisterFn##registerFn##_ {                                       \
-        RegisterFn##registerFn##_() { registerFn(); }                       \
-    };                                                                       \
-    static RegisterFn##registerFn##_ registerFn##_instance_;                 \
-    }                                                                        \
-    void registerFn##_forceLink() { registerFn(); }
 
 #endif // LANGUAGEREGISTRY_H
