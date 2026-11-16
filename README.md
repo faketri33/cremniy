@@ -81,7 +81,7 @@ For guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Dependency | Minimum version |
 |---|---|
-| **[CMake](https://cmake.org/download/)** | 3.16 |
+| **[CMake](https://cmake.org/download/)** | 3.21 |
 | **[Qt](https://www.qt.io/development/download-qt-installer-oss)** | 6.8.2 |
 | **[libgit2](https://libgit2.org/)** | 1.x |
 | **C++ compiler** | C++17 compliant |
@@ -146,6 +146,22 @@ cmake --build .
 cmake ../src -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
+
+#### Presets, tests and tooling
+
+`src/CMakePresets.json` provides ready-made configurations
+(`cmake --list-presets` from `src/`). Build trees go to `build/<preset>`.
+
+```bash
+cd src
+cmake --preset debug            # also: release, relwithdebinfo, asan-ubsan, ci-linux, fast, clang-tidy, clazy
+cmake --build --preset debug
+ctest --preset debug            # unit and integration tests (Qt Test)
+```
+
+Useful options: `-DCREMNIY_WARNINGS_AS_ERRORS=ON`, `-DCREMNIY_SANITIZERS="address;undefined"`,
+`-DCREMNIY_ENABLE_PCH=ON`, `-DCREMNIY_UNITY_BUILD=ON`, `-DCREMNIY_ENABLE_CLANG_TIDY=ON`.
+See [docs/EN/architecture.md](docs/EN/architecture.md) for the code and build layout.
 
 ### Build in Windows
 

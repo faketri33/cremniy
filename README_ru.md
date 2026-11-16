@@ -81,7 +81,7 @@
 
 | Зависимость                                                       | Мин. версия     |
 |-------------------------------------------------------------------|-----------------|
-| **[CMake](https://cmake.org/download/)**                          | 3.16            |
+| **[CMake](https://cmake.org/download/)**                          | 3.21            |
 | **[Qt](https://www.qt.io/development/download-qt-installer-oss)** | 6.8.2           |
 | **[libgit2](https://libgit2.org/)**                               | 1.x             |
 | **Компилятор C++**                                                | Поддержка C++17 |
