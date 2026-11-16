@@ -152,3 +152,6 @@ jobs:
           if (!(Test-Path "build/cremniy.exe")) {
             throw "build/cremniy.exe was not produced"
           }
+
+      - name: Run unit tests
+        run: ctest --test-dir build --build-config Release --output-on-failure

@@ -7,44 +7,51 @@
 
 #include "core/settings/settingsregistry.h"
 
-static QSettings &settings()
+AppSettings::AppSettings(const SettingsRegistry &registry, QObject *parent)
+    : AppSettings(registry, std::make_unique<QSettings>(), parent)
 {
-    static QSettings s;
-    return s;
+}
+
+AppSettings::AppSettings(const SettingsRegistry &registry, std::unique_ptr<QSettings> backend,
+                         QObject *parent)
+    : QObject(parent)
+    , m_registry(registry)
+    , m_settings(std::move(backend))
+{
 }
 
 QString AppSettings::keyLanguage() { return "application/language"; }
 QString AppSettings::keyExcludedPatterns() { return "workspace/files/excludedPatterns"; }
 
-QString AppSettings::language()
+QString AppSettings::language() const
 {
-    const QString stored = settings().value(keyLanguage()).toString().trimmed();
+    const QString stored = m_settings->value(keyLanguage()).toString().trimmed();
     return stored.isEmpty() ? QStringLiteral("en") : stored;
 }
 
 void AppSettings::setLanguage(const QString& locale)
 {
-    settings().setValue(keyLanguage(), locale.trimmed());
+    m_settings->setValue(keyLanguage(), locale.trimmed());
 }
 
-QVariant AppSettings::value(const QString &key, const QVariant &defaultValue)
+QVariant AppSettings::value(const QString &key, const QVariant &defaultValue) const
 {
-    return settings().value(key, defaultValue);
+    return m_settings->value(key, defaultValue);
 }
 
 void AppSettings::setValue(const QString &key, const QVariant &value)
 {
-    settings().setValue(key, value);
+    m_settings->setValue(key, value);
 }
 
-bool AppSettings::contains(const QString &key)
+bool AppSettings::contains(const QString &key) const
 {
-    return settings().contains(key);
+    return m_settings->contains(key);
 }
 
-QStringList AppSettings::excludedPatterns()
+QStringList AppSettings::excludedPatterns() const
 {
-    const QString raw = settings().value(keyExcludedPatterns()).toString();
+    const QString raw = m_settings->value(keyExcludedPatterns()).toString();
     if (raw.trimmed().isEmpty())
         return {};
     QStringList list = raw.split(';', Qt::SkipEmptyParts);
@@ -56,17 +63,11 @@ QStringList AppSettings::excludedPatterns()
 
 void AppSettings::setExcludedPatterns(const QStringList &patterns)
 {
-    settings().setValue(keyExcludedPatterns(), patterns.join(';'));
-    emit SettingsNotifier::instance()->excludedPatternsChanged();
+    m_settings->setValue(keyExcludedPatterns(), patterns.join(';'));
+    emit excludedPatternsChanged();
 }
 
-SettingsNotifier *SettingsNotifier::instance()
-{
-    static SettingsNotifier s;
-    return &s;
-}
-
-bool AppSettings::exportToIni(const QString &filePath, QString *error)
+bool AppSettings::exportToIni(const QString &filePath, QString *error) const
 {
     const QFileInfo fi(filePath);
     if (fi.filePath().trimmed().isEmpty()) {
@@ -79,14 +80,14 @@ bool AppSettings::exportToIni(const QString &filePath, QString *error)
     // Экспортируем всё, что знает ядро: настройки приложения и все ключи,
     // которые модули объявили в фабрике настроек. Хардкод-список исчез:
     // новый модуль добавляется в экспорт автоматически через свою схему.
-    const QStringList moduleKeys = SettingsRegistry::instance().moduleOptionKeys();
+    const QStringList moduleKeys = m_registry.moduleOptionKeys();
     for (const QString& key : {keyLanguage(), keyExcludedPatterns()}) {
-        if (settings().contains(key))
-            out.setValue(key, settings().value(key));
+        if (m_settings->contains(key))
+            out.setValue(key, m_settings->value(key));
     }
     for (const QString& key : moduleKeys) {
-        if (settings().contains(key))
-            out.setValue(key, settings().value(key));
+        if (m_settings->contains(key))
+            out.setValue(key, m_settings->value(key));
     }
     out.sync();
     if (out.status() != QSettings::NoError) {
@@ -111,35 +112,35 @@ bool AppSettings::importFromIni(const QString &filePath, QString *error)
     }
 
     // Импортируем только известные ключи: приложение + схема модулей.
-    const QStringList moduleKeys = SettingsRegistry::instance().moduleOptionKeys();
+    const QStringList moduleKeys = m_registry.moduleOptionKeys();
 
-    bool excludedPatternsChanged = false;
+    bool excludedChanged = false;
     QSet<QString> changedModuleKeys;
 
     for (const QString& key : {keyLanguage(), keyExcludedPatterns()}) {
         if (in.contains(key))
-            settings().setValue(key, in.value(key));
+            m_settings->setValue(key, in.value(key));
         if (in.contains(key) && key == keyExcludedPatterns())
-            excludedPatternsChanged = true;
+            excludedChanged = true;
     }
     for (const QString& key : moduleKeys) {
         if (!in.contains(key))
             continue;
-        settings().setValue(key, in.value(key));
+        m_settings->setValue(key, in.value(key));
         changedModuleKeys.insert(key);
     }
 
-    settings().sync();
-    if (settings().status() != QSettings::NoError) {
+    m_settings->sync();
+    if (m_settings->status() != QSettings::NoError) {
         if (error) *error = QObject::tr("Failed to apply settings");
         return false;
     }
 
-    if (excludedPatternsChanged)
-        emit SettingsNotifier::instance()->excludedPatternsChanged();
+    if (excludedChanged)
+        emit excludedPatternsChanged();
     // Ядро не знает, что означают эти ключи; оно лишь сообщает «такой-то
     // ключ изменился», а модуль сам решает, что с этим делать.
     for (const QString& key : std::as_const(changedModuleKeys))
-        emit SettingsNotifier::instance()->settingsChanged(key);
+        emit settingsChanged(key);
     return true;
 }

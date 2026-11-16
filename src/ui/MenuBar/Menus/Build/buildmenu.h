@@ -8,7 +8,7 @@ class BuildMenu : public BaseMenu
     Q_OBJECT
 public:
     BuildMenu();
-    void setupConnections(IDEWindow* ideWind);
+    void setupConnections(IDEWindow* ideWind) override;
 
 private:
     QAction* m_build;

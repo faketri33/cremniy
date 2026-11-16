@@ -2,8 +2,11 @@
 #define FILETAB_H
 
 #include "core/modules/ModuleManager.h"
-#include "ui/ToolsTabWidget/toolstabwidget.h"
 #include <QWidget>
+
+class AppContext;
+class TabBase;
+class ToolsTabWidget;
 
 class FileTab : public QWidget
 {
@@ -15,7 +18,7 @@ private:
     bool m_pinned = false;
 
 public:
-    explicit FileTab(QWidget *parrent, QString path);
+    explicit FileTab(AppContext &context, QWidget *parrent, QString path);
     QString filePath;
     bool isFileUnsaved() const { return m_modified; }
     bool isPinned() const { return m_pinned; }

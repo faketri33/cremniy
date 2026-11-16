@@ -8,15 +8,9 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
-InstructionHelpService &InstructionHelpService::instance()
+InstructionHelpService::InstructionHelpService(const QString &locale)
 {
-    static InstructionHelpService s;
-    return s;
-}
-
-InstructionHelpService::InstructionHelpService()
-{
-    loadLocale("ru");
+    loadLocale(locale);
 }
 
 void InstructionHelpService::loadLocale(const QString &locale)

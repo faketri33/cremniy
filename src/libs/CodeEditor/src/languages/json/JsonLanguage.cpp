@@ -2,11 +2,9 @@
 
 #include "QJSONHighlighter.hpp"
 
-namespace {
-
-void registerJsonLanguage()
+void registerJsonLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("json"),
         QStringLiteral("JSON"),
         {QStringLiteral("json")},
@@ -15,7 +13,3 @@ void registerJsonLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new QJSONHighlighter(document); }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerJsonLanguage)

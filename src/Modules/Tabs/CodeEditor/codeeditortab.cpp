@@ -1,4 +1,5 @@
 #include "codeeditortab.h"
+#include "core/modules/ModuleContext.h"
 #include "utils/utils.h"
 #include "libs/CodeEditor/include/widgets/CustomCodeEditor.h"
 #include "libs/CodeEditor/include/languages/LanguageRegistry.h"
@@ -19,13 +20,14 @@ static QString displayName() {
     return QCoreApplication::translate("CodeEditorTab", "Code");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "always", []() { return new CodeEditorTab(); }, 100);
-    return true;
-}();
+void registerCodeEditorTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "always", [](const ModuleContext& context) { return new CodeEditorTab(context.settings, context.languages); }, 100);
+}
 
-CodeEditorTab::CodeEditorTab(QWidget* parent)
+CodeEditorTab::CodeEditorTab(AppSettings& settings, const LanguageRegistry& languageRegistry, QWidget* parent)
     : TabBase(parent)
+    , m_settings(settings)
+    , m_languageRegistry(languageRegistry)
 {
 
     auto* rootLayout = new QVBoxLayout(this);
@@ -33,7 +35,7 @@ CodeEditorTab::CodeEditorTab(QWidget* parent)
     rootLayout->setSpacing(0);
 
     // - - Code Editor - -
-    m_codeEditorWidget = new CustomCodeEditor(this);
+    m_codeEditorWidget = new CustomCodeEditor(m_languageRegistry, this);
     m_overlayWidget = new QWidget(this);
     auto overlayLayout = new QVBoxLayout(m_overlayWidget);
     overlayLayout->setAlignment(Qt::AlignCenter);
@@ -98,21 +100,21 @@ CodeEditorTab::CodeEditorTab(QWidget* parent)
 
     connect(m_goToLineShortcut, &QShortcut::activated, this, &CodeEditorTab::openGoToLineDialog);
 
-    m_gitBlameEnabled = CodeEditorSettings::gitBlameEnabled();
+    m_gitBlameEnabled = CodeEditorSettings::gitBlameEnabled(m_settings);
     m_codeEditorWidget->setGitBlameEnabled(m_gitBlameEnabled);
-    m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor());
-    m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding());
+    m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor(m_settings));
+    m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding(m_settings));
 
-    connect(SettingsNotifier::instance(), &SettingsNotifier::settingsChanged,
+    connect(&m_settings, &AppSettings::settingsChanged,
             this, [this](const QString &key) {
         // Модуль сам знает свои ключи и сам решает, что изменилось;
         // ядро лишь сообщает «такой-то ключ поменялся».
         if (key == CodeEditorSettings::keyGitBlameEnabled()) {
-            setGitBlameSlot(CodeEditorSettings::gitBlameEnabled());
+            setGitBlameSlot(CodeEditorSettings::gitBlameEnabled(m_settings));
         } else if (key == CodeEditorSettings::keyGitBlameColor()) {
-            m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor());
+            m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor(m_settings));
         } else if (key == CodeEditorSettings::keyGitBlamePadding()) {
-            m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding());
+            m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding(m_settings));
         }
     });
 }
@@ -155,8 +157,8 @@ bool CodeEditorTab::revealSearchMatch(int oneBasedLine, int zeroBasedColumn, int
 
 void CodeEditorTab::setFile(QString filepath)
 {
-    m_fileContext = new FileContext(filepath);
-    m_codeEditorWidget->setFileExt(CustomCodeEditor::syntaxKeyForPath(filepath));
+    m_fileContext = std::make_unique<FileContext>(filepath);
+    m_codeEditorWidget->setFileExt(m_codeEditorWidget->syntaxKeyForPath(filepath));
     m_currentLang = detectLanguage(filepath);
 
     requestBlameUpdate();
@@ -208,8 +210,8 @@ void CodeEditorTab::setGitBlameSlot(bool checked)
         return;
 
     m_gitBlameEnabled = checked;
-    if (CodeEditorSettings::gitBlameEnabled() != checked)
-        CodeEditorSettings::setGitBlameEnabled(checked);
+    if (CodeEditorSettings::gitBlameEnabled(m_settings) != checked)
+        CodeEditorSettings::setGitBlameEnabled(m_settings, checked);
 
     const bool effectiveEnabled = checked && !m_largeFileMode;
     m_codeEditorWidget->setGitBlameEnabled(effectiveEnabled);
@@ -226,11 +228,11 @@ void CodeEditorTab::refreshGitBlame()
     requestBlameUpdate();
 }
 
-QString CodeEditorTab::detectLanguage(const QString& filePath)
+QString CodeEditorTab::detectLanguage(const QString& filePath) const
 {
     // Single source of truth: LanguageRegistry. See docs/adding_a_language.md.
     const QFileInfo fi(filePath);
-    const LanguageDefinition& language = LanguageRegistry::instance().resolveForFile(fi.fileName());
+    const LanguageDefinition& language = m_languageRegistry.resolveForFile(fi.fileName());
     if (&language != &LanguageRegistry::plainTextLanguage())
         return language.displayName;
 
@@ -264,7 +266,7 @@ void CodeEditorTab::setTabData()
                 m_codeEditorWidget->setGitBlameEnabled(false);
             } else {
                 m_codeEditorWidget->setWordWrapEnabled(true);
-                m_codeEditorWidget->setFileExt(CustomCodeEditor::syntaxKeyForPath(m_fileContext->filePath()));
+                m_codeEditorWidget->setFileExt(m_codeEditorWidget->syntaxKeyForPath(m_fileContext->filePath()));
                 m_codeEditorWidget->setGitBlameEnabled(m_gitBlameEnabled);
             }
         }

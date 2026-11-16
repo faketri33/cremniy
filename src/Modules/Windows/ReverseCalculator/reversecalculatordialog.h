@@ -2,6 +2,7 @@
 #define REVERSECALCULATORDIALOG_H
 
 #include "core/modules/WindowBase.h"
+#include "reversecalculatorengine.h"
 #include <QDialog>
 #include <QMap>
 #include <QString>
@@ -33,6 +34,8 @@ private:
         QLabel *value = nullptr;
         QPushButton *copyBtn = nullptr;
     };
+
+    ReverseCalculatorEngine m_engine;
 
     QLineEdit *m_input = nullptr;
     QComboBox *m_width = nullptr;

@@ -12,10 +12,10 @@ struct ParseResult {
     int base = 10;
 };
 
+// Stateless expression parser and formatter. Plain value type: create one
+// wherever it is needed (no shared global instance).
 class ReverseCalculatorEngine {
 public:
-    static ReverseCalculatorEngine& instance();
-
     ParseResult parseExpression(const QString &expression, int bits);
 
     static QString formatHex(qulonglong v, int bits);
@@ -31,10 +31,8 @@ public:
     static int detectBase(const QString &token);
 
 private:
-    ReverseCalculatorEngine() = default;
-    
     struct Token {
-        enum Type { Number, Operator, OpenParen, CloseParen } type;
+        enum class Type { Number, Operator, OpenParen, CloseParen } type;
         QString value;
         int precedence = 0;
         bool rightAssociative = false;

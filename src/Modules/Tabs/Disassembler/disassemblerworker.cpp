@@ -100,13 +100,14 @@ QString DisassemblerWorker::detectArch(const QString &filePath)
     return {};
 }
 
-void DisassemblerWorker::disassemble(const QString &filePath, const QString &arch)
+void DisassemblerWorker::disassemble(const QString &filePath, const QString &arch,
+                                     const DisassemblerSettings::Snapshot &settings)
 {
     m_cancelled = false;
 
     // ── backend selection ─────────────────────────────────────────────────
-    if (DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2) {
-        QString r2 = DisassemblerSettings::radare2Path();
+    if (settings.backend == DisassemblerSettings::Backend::Radare2) {
+        QString r2 = settings.radare2Path;
         if (r2.isEmpty())
             r2 = QStandardPaths::findExecutable("r2");
 
@@ -120,10 +121,10 @@ void DisassemblerWorker::disassemble(const QString &filePath, const QString &arc
         }
 
         Radare2Backend::Options opt;
-        opt.insnLimitPerSection = DisassemblerSettings::insnLimitPerSection();
-        opt.analysisLevel = static_cast<int>(DisassemblerSettings::radare2AnalysisLevel());
-        opt.asmSyntax = static_cast<int>(DisassemblerSettings::asmSyntax());
-        opt.preCommands = DisassemblerSettings::radare2PreCommands();
+        opt.insnLimitPerSection = settings.insnLimitPerSection;
+        opt.analysisLevel = static_cast<int>(settings.radare2AnalysisLevel);
+        opt.asmSyntax = static_cast<int>(settings.asmSyntax);
+        opt.preCommands = settings.radare2PreCommands;
 
         emit logLine(QString("[disasm] insnLimit : %1").arg(opt.insnLimitPerSection));
         emit logLine(QString("[disasm] r2Analyze : %1").arg(opt.analysisLevel == 2 ? "aaa" : (opt.analysisLevel == 1 ? "aa" : "none")));
@@ -170,7 +171,7 @@ void DisassemblerWorker::disassemble(const QString &filePath, const QString &arc
     emit logLine("[disasm] arch-hint : " + (effectiveArch.isEmpty() ? "(auto)" : effectiveArch));
 
     // ── build objdump command ─────────────────────────────────────────────
-    QString objdumpExe = DisassemblerSettings::objdumpPath();
+    QString objdumpExe = settings.objdumpPath;
     if (objdumpExe.isEmpty())
         objdumpExe = QStandardPaths::findExecutable("objdump");
     if (objdumpExe.isEmpty())
@@ -184,7 +185,7 @@ void DisassemblerWorker::disassemble(const QString &filePath, const QString &arc
         if (!effectiveArch.isEmpty()) args << "-m" << effectiveArch;
     }
    if (effectiveArch.contains("i386") || effectiveArch.contains("x86")) {
-        args << "-M" << (DisassemblerSettings::asmSyntax() == DisassemblerSettings::Syntax::Att ? "att" : "intel");
+        args << "-M" << (settings.asmSyntax == DisassemblerSettings::Syntax::Att ? "att" : "intel");
     }
     args << filePath;
 

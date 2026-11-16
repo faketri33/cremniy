@@ -4,12 +4,10 @@
 #include <QHeaderView>
 #include <QtEndian>
 
-static bool registered = [](){
-    FormatPageFactory::instance().registerPage("2", [](){
-        return new ELFPage();
-    });
-    return true;
-}();
+void registerElfPage(FormatPageFactory& factory)
+{
+    factory.registerPage("2", []() { return new ELFPage(); });
+}
 
 ELFPage::ELFPage(QWidget *parent)
     : FormatPage(parent)

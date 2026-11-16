@@ -1,4 +1,5 @@
 #include "filestabwidget.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
 
 #include "core/file/FileDataBuffer.h"
 #include "Modules/Tabs/CodeEditor/codeeditortab.h"
@@ -19,7 +20,7 @@
 #include <qboxlayout.h>
 #include <qfileinfo.h>
 #include <QPushButton>
-#include "buildTab/buildtab.h"
+#include "widgets/buildTab/buildtab.h"
 
 namespace {
 
@@ -39,7 +40,10 @@ bool samePath(const QString& left, const QString& right)
 
 } // namespace
 
-FilesTabWidget::FilesTabWidget(QWidget *parent) {
+FilesTabWidget::FilesTabWidget(AppContext &context, QWidget *parent)
+    : QTabWidget(parent)
+    , m_context(context)
+{
     connect(this, &QTabWidget::currentChanged, this, &FilesTabWidget::tabSelect);
     connect(tabBar(), &QTabBar::tabMoved, this, &FilesTabWidget::onTabMoved);
     tabBar()->installEventFilter(this);
@@ -89,7 +93,7 @@ void FilesTabWidget::openFile(QString filePath, QString tabTitle) {
     }
 
     // else if file is not opened
-    FileTab *filetab = new FileTab(this, filePath);
+    FileTab *filetab = new FileTab(m_context, this, filePath);
     int new_tab_index = this->addTab(filetab, tabTitle);
     this->setCurrentIndex(new_tab_index);
 
@@ -319,7 +323,7 @@ void FilesTabWidget::closeTab(int index) {
     if (tab && tab->isFileUnsaved()) {
         QMessageBox question_save_file(QMessageBox::Question, tr("Save File"), tr("Do you want to save this file?"),QMessageBox::NoButton, this);
         const auto yes = question_save_file.addButton(tr("Yes") ,QMessageBox::YesRole);
-        const auto no = question_save_file.addButton(tr("No"), QMessageBox::NoRole);
+        question_save_file.addButton(tr("No"), QMessageBox::NoRole);
         const auto cancel = question_save_file.addButton(tr("Cancel"), QMessageBox::RejectRole);
 
         question_save_file.exec();

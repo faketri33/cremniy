@@ -1,4 +1,5 @@
 #include "disassemblertab.h"
+#include "core/modules/ModuleContext.h"
 #include "disassemblersettings.h"
 #include "disassemblerworker.h"
 
@@ -36,10 +37,9 @@ static QString displayName() {
     return QCoreApplication::translate("DisassemblerTab", "Disassembler");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "", []() { return new DisassemblerTab(); }, 100);
-    return true;
-}();
+void registerDisassemblerTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "", [](const ModuleContext& context) { return new DisassemblerTab(context.settings); }, 100);
+}
 
 static QString normalizeBytes(const QString &bytes)
 {
@@ -229,8 +229,9 @@ QString DisassemblerTab::formatLine(const LineInfo &li) const
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-DisassemblerTab::DisassemblerTab(QWidget *parent)
+DisassemblerTab::DisassemblerTab(AppSettings &settings, QWidget *parent)
     : TabBase{parent}
+    , m_settings(settings)
 {
     setupUi();
 
@@ -238,10 +239,10 @@ DisassemblerTab::DisassemblerTab(QWidget *parent)
     m_worker = new DisassemblerWorker();
     m_worker->moveToThread(m_thread);
 
-    connect(m_thread, &QThread::finished, this, [this]() {
-        m_worker->deleteLater();
-        m_worker = nullptr;
-    });
+    // The worker lives in m_thread; delete it from there when the thread ends
+    // (also when the tab is destroyed and no event loop of the tab remains).
+    connect(m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
+    connect(m_thread, &QThread::finished, this, [this]() { m_worker = nullptr; });
     connect(this,  &DisassemblerTab::requestDisassembly,
             m_worker, &DisassemblerWorker::disassemble, Qt::QueuedConnection);
     connect(m_worker, &DisassemblerWorker::sectionFound,
@@ -275,7 +276,7 @@ DisassemblerTab::~DisassemblerTab()
 }
 
 void DisassemblerTab::setFile(QString filepath){
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 }
 
 void DisassemblerTab::setTabData()
@@ -553,7 +554,7 @@ void DisassemblerTab::setupUi()
         }
 
         // Safe patching: only for radare2 backend where address is an offset we can write to.
-        const bool canPatchAtLine = (DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2);
+        const bool canPatchAtLine = (DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2);
         if (canPatchAtLine) {
             menu.addSeparator();
             menu.addAction(tr("Hex patch here…"), [this, li]() {
@@ -781,7 +782,7 @@ void DisassemblerTab::setupUi()
 
     showPlaceholder(tr("Press \"Disassemble\" to analyse the file"));
     m_statusLabel->setText(tr("Backend: %1").arg(
-        DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2 ? tr("radare2") : tr("objdump")));
+        DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2 ? tr("radare2") : tr("objdump")));
 
     // ── Connections ───────────────────────────────────────────────────────────
     connect(m_runBtn,       &QPushButton::clicked,
@@ -851,9 +852,13 @@ void DisassemblerTab::showInstructionHelpAt(const QPoint &pos, bool forceByCurso
     const QString token = c.selectedText().trimmed();
     const QString line = c.block().text();
 
-    QString tip = InstructionHelpService::instance().tooltipForToken(token, line);
+    // Loaded lazily on first hover, as the former singleton was.
+    if (!m_instructionHelp)
+        m_instructionHelp = std::make_unique<InstructionHelpService>();
+
+    QString tip = m_instructionHelp->tooltipForToken(token, line);
     if (tip.isEmpty())
-        tip = InstructionHelpService::instance().tooltipForLine(line);
+        tip = m_instructionHelp->tooltipForLine(line);
 
     if (tip.isEmpty()) {
         QToolTip::hideText();
@@ -867,7 +872,7 @@ void DisassemblerTab::showInstructionHelpAt(const QPoint &pos, bool forceByCurso
 void DisassemblerTab::updateBackendUiHint()
 {
     if (m_running) return;
-    const QString backend = (DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2) ? tr("radare2") : tr("objdump");
+    const QString backend = (DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2) ? tr("radare2") : tr("objdump");
     m_statusLabel->setText(tr("Backend: %1").arg(backend));
 }
 
@@ -885,8 +890,8 @@ void DisassemblerTab::startDisassembly()
     if (m_fileContext->filePath().isEmpty()) { showPlaceholder(tr("No file path set")); return; }
 
     // If radare2 backend is selected, ensure r2 is available. If not, prompt for path.
-    if (DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2) {
-        QString r2 = DisassemblerSettings::radare2Path();
+    if (DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2) {
+        QString r2 = DisassemblerSettings::radare2Path(m_settings);
         if (r2.isEmpty())
             r2 = QStandardPaths::findExecutable("r2");
 
@@ -900,7 +905,7 @@ void DisassemblerTab::startDisassembly()
                 showPlaceholder(tr("radare2 is not configured — set it in Settings"));
                 return;
             }
-            DisassemblerSettings::setRadare2Path(picked);
+            DisassemblerSettings::setRadare2Path(m_settings, picked);
         }
     }
 
@@ -922,7 +927,7 @@ void DisassemblerTab::startDisassembly()
     m_progressBar->setValue(0);
     m_progressBar->setVisible(true);
     m_statusLabel->setText(
-        DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2
+        DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2
             ? tr("Running radare2…")
             : tr("Running objdump…"));
 
@@ -934,12 +939,12 @@ void DisassemblerTab::startDisassembly()
     appendLog("=== Disassembly started: " +
               QDateTime::currentDateTime().toString("hh:mm:ss") + " ===");
     appendLog(QString("[disasm] backend: %1")
-                  .arg(DisassemblerSettings::backend() == DisassemblerSettings::Backend::Radare2 ? "radare2" : "objdump"));
+                  .arg(DisassemblerSettings::backend(m_settings) == DisassemblerSettings::Backend::Radare2 ? "radare2" : "objdump"));
 
     setRunningState(true);
     showPlaceholder(tr("Disassembling…"));
 
-    emit requestDisassembly(m_fileContext->filePath(), {});
+    emit requestDisassembly(m_fileContext->filePath(), {}, DisassemblerSettings::snapshot(m_settings));
 }
 
 void DisassemblerTab::cancelDisassembly()

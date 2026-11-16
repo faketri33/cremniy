@@ -8,18 +8,21 @@ class QComboBox;
 class QSpinBox;
 class QWidget;
 
+class AppSettings;
+
 class CodeEditorSettingsPage : public SettingsPage
 {
     Q_OBJECT
 
 public:
-    explicit CodeEditorSettingsPage(QWidget* parent = nullptr);
+    explicit CodeEditorSettingsPage(AppSettings& settings, QWidget* parent = nullptr);
 
     void load() override;
     bool validate(QString* errorMessage) const override;
     void apply() override;
 
 private:
+    AppSettings& m_settings;
     void chooseCustomColor(int index);
 
     QCheckBox* m_gitBlameEnabled = nullptr;

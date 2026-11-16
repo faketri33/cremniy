@@ -8,15 +8,15 @@
 #include "formatpagefactory.h"
 #include "formatpage.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("BinaryTab", "Binary");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "always", []() { return new BinaryTab(); }, 200);
-    return true;
-}();
+void registerBinaryTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "always", [](const ModuleContext&) { return new BinaryTab(); }, 200);
+}
 
 namespace {
 void syncCurrentFormatPage(QStackedWidget* pageView, FileDataBuffer* dataBuffer)
@@ -118,7 +118,8 @@ bool BinaryTab::revealSearchMatch(int oneBasedLine, int zeroBasedColumn, int len
 
 void BinaryTab::createPages(){
 
-    auto& formatFactory = FormatPageFactory::instance();
+    FormatPageFactory formatFactory;
+    registerBuiltinFormatPages(formatFactory);
 
     qDebug() << "FormatPageFactory constr: for id in avPages";
     for (const QString& toolID : formatFactory.availablePages()){
@@ -177,7 +178,7 @@ void BinaryTab::pageModifyDataSlot(){
 }
 
 void BinaryTab::setFile(QString filepath){
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 }
 
 void BinaryTab::setTabData(){

@@ -3,6 +3,8 @@
 
 #include <QString>
 
+class AppSettings;
+
 // Настройки модуля Disassembler.
 //
 // ВСЁ, что касается настроек этого модуля (ключи, умолчания, типы и
@@ -40,26 +42,39 @@ QString keyRadare2AnalysisLevel();
 QString keyAsmSyntax();
 QString keyRadare2PreCommands();
 
-Backend backend();
-void setBackend(Backend backend);
+Backend backend(const AppSettings &settings);
+void setBackend(AppSettings &settings, Backend backend);
 
-QString objdumpPath();
-void setObjdumpPath(const QString &path);
+QString objdumpPath(const AppSettings &settings);
+void setObjdumpPath(AppSettings &settings, const QString &path);
 
-QString radare2Path();
-void setRadare2Path(const QString &path);
+QString radare2Path(const AppSettings &settings);
+void setRadare2Path(AppSettings &settings, const QString &path);
 
-int insnLimitPerSection();
-void setInsnLimitPerSection(int limit);
+int insnLimitPerSection(const AppSettings &settings);
+void setInsnLimitPerSection(AppSettings &settings, int limit);
 
-AnalysisLevel radare2AnalysisLevel();
-void setRadare2AnalysisLevel(AnalysisLevel level);
+AnalysisLevel radare2AnalysisLevel(const AppSettings &settings);
+void setRadare2AnalysisLevel(AppSettings &settings, AnalysisLevel level);
 
-Syntax asmSyntax();
-void setAsmSyntax(Syntax syntax);
+Syntax asmSyntax(const AppSettings &settings);
+void setAsmSyntax(AppSettings &settings, Syntax syntax);
 
-QString radare2PreCommands();
-void setRadare2PreCommands(const QString &cmds);
+QString radare2PreCommands(const AppSettings &settings);
+void setRadare2PreCommands(AppSettings &settings, const QString &cmds);
+
+// Plain-value copy of all settings, safe to hand to another thread.
+struct Snapshot {
+    Backend backend = Backend::Objdump;
+    QString objdumpPath;
+    QString radare2Path;
+    int insnLimitPerSection = 4000;
+    AnalysisLevel radare2AnalysisLevel = AnalysisLevel::None;
+    Syntax asmSyntax = Syntax::Intel;
+    QString radare2PreCommands;
+};
+
+Snapshot snapshot(const AppSettings &settings);
 
 } // namespace DisassemblerSettings
 

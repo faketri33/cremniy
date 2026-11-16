@@ -2,11 +2,9 @@
 
 #include "QCXXHighlighter.hpp"
 
-namespace {
-
-void registerCppLanguage()
+void registerCppLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("cpp"),
         QStringLiteral("C++"),
         {QStringLiteral("cpp"), QStringLiteral("hpp"), QStringLiteral("cc"), QStringLiteral("cxx"),
@@ -16,7 +14,7 @@ void registerCppLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new QCXXHighlighter(document); }
     });
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("c"),
         QStringLiteral("C"),
         {QStringLiteral("c"), QStringLiteral("h")},
@@ -25,7 +23,3 @@ void registerCppLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new QCXXHighlighter(document); }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerCppLanguage)

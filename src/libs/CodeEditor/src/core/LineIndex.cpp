@@ -1,5 +1,5 @@
 #include "LineIndex.h"
-#include "FileDataBuffer.h"
+#include "core/file/FileDataBuffer.h"
 #include <QDebug>
 
 LineIndex::LineIndex() 

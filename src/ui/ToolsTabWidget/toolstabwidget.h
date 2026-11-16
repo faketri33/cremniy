@@ -18,11 +18,13 @@ class FileDataBuffer;
 class TabBase;
 class CodeEditorTab;
 
+class AppContext;
+
 class ToolsTabWidget : public QTabWidget
 {
     Q_OBJECT
 public:
-    ToolsTabWidget(QWidget *parent, QString path);
+    ToolsTabWidget(AppContext &context, QWidget *parent, QString path);
     TabBase* openToolTab(const QString& toolId, bool activate = true);
     int saveToFileCurrentTab(QString path);
     void setDataInTabs(QByteArray &data, int index = -1, int excluded_index = -1);
@@ -37,6 +39,7 @@ private:
     void updateCloseButtons();
     void createTab(const ModuleDescription<TabBase>& desc, bool isAlways = false, bool tabClosable = true);
     void connectGitIntegration(TabBase* tab);
+    AppContext &m_context;
     FileDataBuffer* m_sharedBuffer = nullptr;
     QString m_filePath;
 

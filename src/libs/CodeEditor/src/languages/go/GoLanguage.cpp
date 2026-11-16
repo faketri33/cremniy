@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerGoLanguage()
+void registerGoLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("go"),
         QStringLiteral("Go"),
         {QStringLiteral("go")},
@@ -34,7 +32,3 @@ void registerGoLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerGoLanguage)

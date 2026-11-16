@@ -11,40 +11,40 @@ QString keyGitBlameEnabled() { return QStringLiteral("modules/codeEditor/gitBlam
 QString keyGitBlameColor() { return QStringLiteral("modules/codeEditor/gitBlameColor"); }
 QString keyGitBlamePadding() { return QStringLiteral("modules/codeEditor/gitBlamePadding"); }
 
-bool gitBlameEnabled()
+bool gitBlameEnabled(const AppSettings &settings)
 {
-    return AppSettings::value(keyGitBlameEnabled(), false).toBool();
+    return settings.value(keyGitBlameEnabled(), false).toBool();
 }
 
-void setGitBlameEnabled(bool enabled)
+void setGitBlameEnabled(AppSettings &settings, bool enabled)
 {
-    if (gitBlameEnabled() == enabled)
+    if (gitBlameEnabled(settings) == enabled)
         return;
 
-    AppSettings::setValue(keyGitBlameEnabled(), enabled);
-    emit SettingsNotifier::instance()->settingsChanged(keyGitBlameEnabled());
+    settings.setValue(keyGitBlameEnabled(), enabled);
+    emit settings.settingsChanged(keyGitBlameEnabled());
 }
 
-QString gitBlameColor()
+QString gitBlameColor(const AppSettings &settings)
 {
-    return AppSettings::value(keyGitBlameColor(), kDefaultBlameColor).toString();
+    return settings.value(keyGitBlameColor(), kDefaultBlameColor).toString();
 }
 
-void setGitBlameColor(const QString &color)
+void setGitBlameColor(AppSettings &settings, const QString &color)
 {
-    AppSettings::setValue(keyGitBlameColor(), color);
-    emit SettingsNotifier::instance()->settingsChanged(keyGitBlameColor());
+    settings.setValue(keyGitBlameColor(), color);
+    emit settings.settingsChanged(keyGitBlameColor());
 }
 
-int gitBlamePadding()
+int gitBlamePadding(const AppSettings &settings)
 {
-    return AppSettings::value(keyGitBlamePadding(), kDefaultBlamePadding).toInt();
+    return settings.value(keyGitBlamePadding(), kDefaultBlamePadding).toInt();
 }
 
-void setGitBlamePadding(int padding)
+void setGitBlamePadding(AppSettings &settings, int padding)
 {
-    AppSettings::setValue(keyGitBlamePadding(), padding);
-    emit SettingsNotifier::instance()->settingsChanged(keyGitBlamePadding());
+    settings.setValue(keyGitBlamePadding(), padding);
+    emit settings.settingsChanged(keyGitBlamePadding());
 }
 
 } // namespace CodeEditorSettings

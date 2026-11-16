@@ -35,9 +35,11 @@ QStyleSyntaxHighlighter* createJsLikeHighlighter(QTextDocument* document)
     return new RuleBasedHighlighter(rules, QRegularExpression(QStringLiteral("//[^\\n]*")), document);
 }
 
-void registerJavaScriptLanguage()
+} // namespace
+
+void registerJavaScriptLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("javascript"),
         QStringLiteral("JavaScript"),
         {QStringLiteral("js"), QStringLiteral("mjs"), QStringLiteral("cjs"), QStringLiteral("jsx")},
@@ -46,7 +48,7 @@ void registerJavaScriptLanguage()
         &createJsLikeHighlighter
     });
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("typescript"),
         QStringLiteral("TypeScript"),
         {QStringLiteral("ts"), QStringLiteral("tsx")},
@@ -55,7 +57,3 @@ void registerJavaScriptLanguage()
         &createJsLikeHighlighter
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerJavaScriptLanguage)

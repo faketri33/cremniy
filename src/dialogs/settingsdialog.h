@@ -8,13 +8,14 @@ class QStackedWidget;
 class QTreeWidget;
 class QLabel;
 class SettingsPage;
+class AppContext;
 
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(QWidget* parent = nullptr);
+    explicit SettingsDialog(AppContext& context, QWidget* parent = nullptr);
 
 private slots:
     void onExportIni();
@@ -24,6 +25,8 @@ private slots:
 
 private:
     void loadPages();
+
+    AppContext& m_context;
 
     QTreeWidget* m_categories = nullptr;
     QStackedWidget* m_pagesWidget = nullptr;

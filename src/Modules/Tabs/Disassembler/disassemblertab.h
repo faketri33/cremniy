@@ -3,10 +3,12 @@
 
 #include "core/modules/TabBase.h"
 #include "disassemblerworker.h"
+#include "instructionhelpservice.h"
 #include <QIcon>
 #include <QWidget>
 #include <QThread>
 #include <QHash>
+#include <memory>
 
 #include <QGuiApplication>
 #include <QClipboard>
@@ -24,17 +26,19 @@ class DisasmTextHighlighter;
 class QListWidget;
 
 
+class AppSettings;
+
 class DisassemblerTab : public TabBase
 {
     Q_OBJECT
 
 public:
-    explicit DisassemblerTab(QWidget *parent = nullptr);
+    explicit DisassemblerTab(AppSettings &settings, QWidget *parent = nullptr);
     ~DisassemblerTab();
 
     QIcon icon() const override { return QIcon(":/icons/dasm.svg"); };
 
-    void saveToFile(QString path) {}
+    void saveToFile(QString /*path*/) {}
     void setTabData(QByteArray &data);
 
     struct LineInfo {
@@ -54,7 +58,8 @@ public:
     };
 
 signals:
-    void requestDisassembly(const QString &filePath, const QString &arch);
+    void requestDisassembly(const QString &filePath, const QString &arch,
+                            const DisassemblerSettings::Snapshot &settings);
 
 public slots:
 
@@ -63,9 +68,9 @@ public slots:
     void setTabData() override;
     void saveTabData() override;
 
-    void setWordWrapSlot(bool checked) override {};
-    void setTabReplaceSlot(bool checked) override {};
-    void setTabWidthSlot(int width) override {};
+    void setWordWrapSlot(bool /*checked*/) override {}
+    void setTabReplaceSlot(bool /*checked*/) override {}
+    void setTabWidthSlot(int /*width*/) override {}
 
 protected slots:
     // Обработчик изменения выделения из буфера
@@ -104,6 +109,9 @@ private:
     void jumpToAddress(const QString &addr);
     QString autoCommentForLine(const LineInfo &li) const;
     bool tryResolveStringRefAddr(const LineInfo &li, quint64 *outAddr) const;
+
+    AppSettings &m_settings;
+    std::unique_ptr<InstructionHelpService> m_instructionHelp; // created on first use
 
     QThread            *m_thread  = nullptr;
     DisassemblerWorker *m_worker  = nullptr;

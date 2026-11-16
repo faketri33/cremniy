@@ -14,7 +14,7 @@ private:
     QAction* m_settings;
 public:
     EditMenu();
-    void setupConnections(IDEWindow* ideWind);
+    void setupConnections(IDEWindow* ideWind) override;
 };
 
 #endif // EDITMENU_H

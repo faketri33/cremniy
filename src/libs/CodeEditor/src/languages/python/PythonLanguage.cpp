@@ -4,11 +4,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerPythonLanguage()
+void registerPythonLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("python"),
         QStringLiteral("Python"),
         {QStringLiteral("py")},
@@ -24,7 +22,3 @@ void registerPythonLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerPythonLanguage)

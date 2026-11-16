@@ -39,10 +39,11 @@ struct LanguageDefinition {
 ```
 
 Язык регистрирует один (или несколько) экземпляров `LanguageDefinition`
-через `LanguageRegistry::instance().registerLanguage(...)` — обычно из
-статической функции регистрации, вызываемой макросом
-`CREMNIY_REGISTER_LANGUAGE` на уровне файла. Регистрация происходит один
-раз, автоматически, до запуска `main()` — больше ничего вызывать не нужно.
+через `registry.registerLanguage(...)` из функции
+`void register<Имя>Language(LanguageRegistry& registry)`. Реестр — обычный
+объект, который создаёт composition root приложения (`AppContext`) и один раз
+при старте вызывает `registerAllLanguages(registry)`. Глобального экземпляра и
+статической инициализации нет.
 
 ## Пошагово: добавляем язык
 
@@ -79,13 +80,11 @@ regex-правила применительно к одной строке (на
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerZigLanguage()
+void registerZigLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("zig"),
         QStringLiteral("Zig"),
         {QStringLiteral("zig")},
@@ -109,9 +108,6 @@ void registerZigLanguage()
     });
 }
 
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerZigLanguage)
 ```
 
 Разбор по полям:
@@ -137,7 +133,7 @@ CREMNIY_REGISTER_LANGUAGE(registerZigLanguage)
 Если языку нужно больше одного тесно связанного `LanguageDefinition` (как
 `make/MakeLanguage.cpp`, который регистрирует и "make", и "cmake"), можно
 зарегистрировать несколько из одного файла и одного вызова
-`CREMNIY_REGISTER_LANGUAGE` — см. этот файл как образец. Делай так только
+функции регистрации — см. этот файл как образец. Делай так только
 если определения реально неразделимы (исторически один файл, одна область
 инструментов); в остальных случаях у каждого языка своя директория, даже у
 близкородственных — смотри `java/`, `csharp/`, `go/` и `php/`: четыре языка
@@ -171,43 +167,29 @@ target_sources(${PROJECT_NAME} PRIVATE
 `src/libs/CodeEditor/CMakeLists.txt`, ни корневой `CMakeLists.txt` в
 `languages/` для добавления языка редактировать не нужно.
 
-### 4. Добавь одну строку в LanguageRegistration.cpp
-
-Так как `CodeEditor` собирается как **статическая библиотека**, линкер
-вправе полностью выбросить object-файл, если ни один символ из него не
-используется где-либо в финальном бинарнике — а `.cpp`-файл языка сам по
-себе ничего не экспортирует, на что можно было бы сослаться по имени.
-`CREMNIY_REGISTER_LANGUAGE` генерирует функцию с внешним связыванием
-`<registerFn>_forceLink()` именно для того, чтобы дать линкеру повод
-оставить файл; `LanguageRegistration.cpp` — единственное место, где явно
-вызываются thunk-функции всех языков, а `main()` один раз при старте
-вызывает `registerAllLanguages()`.
+### 4. Добавь язык в LanguageRegistration.cpp
 
 Открой `src/libs/CodeEditor/src/languages/core/LanguageRegistration.cpp` и
-добавь две строки: `extern`-объявление рядом с остальными и вызов внутри
-`registerAllLanguages()`:
+добавь объявление рядом с остальными и вызов внутри `registerAllLanguages()`:
 
 ```cpp
-extern void registerYamlLanguage_forceLink();
-extern void registerZigLanguage_forceLink();   // <- добавь эту строку
+void registerYamlLanguage(LanguageRegistry&);
+void registerZigLanguage(LanguageRegistry&);   // <- добавь эту строку
 
-void registerAllLanguages()
+void registerAllLanguages(LanguageRegistry& registry)
 {
     // ...
-    registerYamlLanguage_forceLink();
-    registerZigLanguage_forceLink();   // <- добавь эту строку
+    registerYamlLanguage(registry);
+    registerZigLanguage(registry);   // <- добавь эту строку
 }
 ```
 
-Имя функции всегда `<имя, переданное в CREMNIY_REGISTER_LANGUAGE>_forceLink`
-— для `registerZigLanguage` это `registerZigLanguage_forceLink`.
+Функция вызывается явно, поэтому линкер статической библиотеки всегда
+оставляет её object-файл — отдельного «force link» не нужно.
 
-**Если пропустить этот шаг:** проект всё равно успешно соберётся и
-слинкуется, но на некоторых линковщиках/платформах язык просто не появится
-в рантайме — без единой ошибки или предупреждения, просто молча без
-подсветки. Это ровно та проблема, из-за которой этот шаг и появился; за
-подробным объяснением — комментарии в `LanguageRegistry.h` и
-`LanguageRegistration.cpp`.
+**Если пропустить этот шаг:** проект соберётся, но язык не будет
+зарегистрирован, и файлы останутся без подсветки. `languageregistrytest`
+проверяет, что встроенные языки находятся в реестре.
 
 ### 5. Собери и проверь
 

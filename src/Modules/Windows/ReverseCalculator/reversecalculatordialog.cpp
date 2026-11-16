@@ -15,16 +15,15 @@
 #include <QString>
 
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("ReverseCalculator", "Reverse Calculator");
 };
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<WindowBase>(
-    &displayName, "", []() { return new ReverseCalculatorDialog(); });
-    return true;
-}();
+void registerReverseCalculatorDialog(ModuleManager& manager) {
+    manager.registerModule<WindowBase>(&displayName, "", [](const ModuleContext&) { return new ReverseCalculatorDialog(); });
+}
 
 namespace {
 QFrame *makeSeparator(QWidget *parent) {
@@ -225,7 +224,7 @@ void ReverseCalculatorDialog::onInputChanged() {
         return;
     }
 
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     const int bits = m_width->currentData().toInt();
     ParseResult res = engine.parseExpression(text, bits);
 
@@ -257,7 +256,7 @@ void ReverseCalculatorDialog::onReturnPressed() {
     const QString text = m_input->text().trimmed();
     if (text.isEmpty()) return;
 
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     const int bits = m_width->currentData().toInt();
     ParseResult res = engine.parseExpression(text, bits);
 
@@ -290,7 +289,7 @@ void ReverseCalculatorDialog::onHistoryItemClicked(QListWidgetItem *item) {
 
 void ReverseCalculatorDialog::onSwapEndian() {
     const int bits = m_width->currentData().toInt();
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     ParseResult res = engine.parseExpression(m_input->text(), bits);
     if (!res.ok) return;
 

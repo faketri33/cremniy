@@ -3,6 +3,8 @@
 
 #include "core/file/FileDataBuffer.h"
 #include "core/file/filecontext.h"
+#include <memory>
+
 #include <QDateTime>
 #include <QString>
 #include <QVector>
@@ -37,7 +39,7 @@ protected:
     /**
      * @brief Контекст файла
      */
-    FileContext* m_fileContext = nullptr;
+    std::unique_ptr<FileContext> m_fileContext;
 
     /**
      * @brief Флаг означающий изменения в данных
@@ -57,9 +59,7 @@ public:
         : QWidget(parent)
     {}
 
-    ~TabBase() override {
-        delete m_fileContext;
-    }
+    ~TabBase() override = default;
 
     /**
      * @brief Получить лого инструмента для вкладки

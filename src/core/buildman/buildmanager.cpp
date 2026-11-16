@@ -1,4 +1,5 @@
 #include "buildmanager.h"
+#include "widgets/logView/logview.h"
 
 
 BuildManager::BuildManager(const QString &workPath, const QString &command, logView* logViewWidg)

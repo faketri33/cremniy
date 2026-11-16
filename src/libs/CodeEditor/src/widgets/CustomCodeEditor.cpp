@@ -8,7 +8,7 @@
 #include "languages/LanguageRegistry.h"
 #include "QSyntaxStyle.hpp"
 #include "QStyleSyntaxHighlighter.hpp"
-#include "FileDataBuffer.h"
+#include "core/file/FileDataBuffer.h"
 #include "core/LineCache.h"
 #include "core/LineIndex.h"
 #include "core/UTF8Decoder.h"
@@ -215,8 +215,9 @@ QVector<WrappedSegment> buildWrappedSegments(const QString& text, const QFont& f
 
 }
 
-CustomCodeEditor::CustomCodeEditor(QWidget* parent)
+CustomCodeEditor::CustomCodeEditor(const LanguageRegistry& languageRegistry, QWidget* parent)
     : QAbstractScrollArea(parent)
+    , m_languageRegistry(languageRegistry)
     , m_buffer(nullptr)
     , m_lineIndex(new LineIndex())
     , m_lineCache(new LineCache())
@@ -384,21 +385,21 @@ bool CustomCodeEditor::event(QEvent* event)
     return QAbstractScrollArea::event(event);
 }
 
-QString CustomCodeEditor::syntaxKeyForPath(const QString& filePath)
+QString CustomCodeEditor::syntaxKeyForPath(const QString& filePath) const
 {
     const QFileInfo info(filePath);
-    return EditorLanguageSupport::syntaxKeyForFileName(info.fileName());
+    return EditorLanguageSupport::syntaxKeyForFileName(m_languageRegistry, info.fileName());
 }
 
 QString CustomCodeEditor::normalizedFileExt(const QString& ext) const
 {
-    return EditorLanguageSupport::normalizedFileExt(ext);
+    return EditorLanguageSupport::normalizedFileExt(m_languageRegistry, ext);
 }
 
 void CustomCodeEditor::rebuildHighlighterForCurrentExtension()
 {
     const QString languageId = normalizedFileExt(m_fileExt);
-    const LanguageDefinition& language = LanguageRegistry::instance().resolveForExtension(languageId);
+    const LanguageDefinition& language = m_languageRegistry.resolveForExtension(languageId);
     m_languageResource = language.id;
     setSyntaxHighlighter(language.createHighlighter ? language.createHighlighter(m_highlightDocument) : nullptr);
     applyEditorPalette();
@@ -684,7 +685,7 @@ QString CustomCodeEditor::syntaxKey() const
 
 QString CustomCodeEditor::lineCommentPrefix() const
 {
-    return EditorLanguageSupport::lineCommentPrefix(syntaxKey());
+    return EditorLanguageSupport::lineCommentPrefix(m_languageRegistry, syntaxKey());
 }
 
 bool CustomCodeEditor::findText(const QString& text, bool forward, Qt::CaseSensitivity caseSensitivity)

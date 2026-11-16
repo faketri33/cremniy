@@ -1,6 +1,6 @@
 #include "buildtab.h"
 #include "core/buildman/buildmanager.h"
-#include "logView/logview.h"
+#include "widgets/logView/logview.h"
 #include <qboxlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>

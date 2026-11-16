@@ -10,20 +10,22 @@
 #include <qsplitter.h>
 #include <qstatusbar.h>
 #include <QLabel>
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 
 class TerminalPanel;
 
 class FindPanel;
 class QShortcut;
+class AppContext;
 
 class IDEWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit IDEWindow(const QString &ProjectPath, QWidget *parent = nullptr);
+    explicit IDEWindow(AppContext &context, const QString &ProjectPath, QWidget *parent = nullptr);
     ~IDEWindow() override;
     bool gitBlameEnabled() const;
+    AppContext &appContext() const { return m_context; }
 
 private:
     FileTab* currentFileTab() const;
@@ -62,6 +64,7 @@ private:
     FindPanel* m_searchPanel;
     QShortcut* m_closeSearchShortcut;
     int m_findGeneration = 0;
+    AppContext &m_context;
     QString m_projectPath;
 
 public slots:

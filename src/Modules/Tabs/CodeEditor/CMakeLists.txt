@@ -1,8 +1,13 @@
-target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditortab.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditortab.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditorsettings.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditorsettings.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditorsettingspage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/codeeditorsettingspage.h
+add_library(cremniy_module_code_editor STATIC
+    codeeditortab.cpp
+    codeeditortab.h
+    codeeditorsettings.cpp
+    codeeditorsettings.h
+    codeeditorsettingspage.cpp
+    codeeditorsettingspage.h
+)
+
+target_link_libraries(cremniy_module_code_editor
+    PUBLIC  cremniy_module_api CodeEditor
+    PRIVATE cremniy_warnings cremniy_utils
 )

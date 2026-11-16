@@ -13,12 +13,6 @@ QString normalizeKey(const QString& value)
 
 } // namespace
 
-LanguageRegistry& LanguageRegistry::instance()
-{
-    static LanguageRegistry registry;
-    return registry;
-}
-
 void LanguageRegistry::registerLanguage(LanguageDefinition definition)
 {
     Q_ASSERT_X(!definition.id.trimmed().isEmpty(), "LanguageRegistry::registerLanguage",

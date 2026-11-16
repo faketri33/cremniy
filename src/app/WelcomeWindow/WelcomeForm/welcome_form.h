@@ -16,6 +16,7 @@
 #include <QStackedWidget>
 #include <QWidget>
 
+class AppContext;
 class RecentProjectsPage;
 class CreateProjectPage;
 
@@ -23,11 +24,12 @@ class WelcomeForm : public QWidget {
     Q_OBJECT
 
 public:
-    explicit WelcomeForm(QWidget* parent = nullptr);
+    explicit WelcomeForm(AppContext& context, QWidget* parent = nullptr);
     ~WelcomeForm() override = default;
     void openProject(const QString& path, const QString& language = {});
 
 private:
+    AppContext& m_context;
     QStackedWidget*     m_stack;
     RecentProjectsPage* m_recentPage;
     CreateProjectPage*  m_createPage;

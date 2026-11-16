@@ -9,6 +9,7 @@
 #include <QVector>
 
 class QWidget;
+class AppSettings;
 class SettingsPage;
 
 /**
@@ -23,7 +24,7 @@ struct ModuleOptionDescriptor
 {
     QString key;            // e.g. "modules/disassembler/objdumpPath"
     QVariant defaultValue;  // умолчание, которое модуль использует при чтении
-    bool notify = true;     // слать SettingsNotifier::settingsChanged(key) при импорте
+    bool notify = true;     // слать AppSettings::settingsChanged(key) при импорте
 };
 
 struct SettingsPageDescriptor
@@ -35,7 +36,7 @@ struct SettingsPageDescriptor
     std::function<QString()> pageTitle;
     int pageOrder = 0;
     QString ownerId;
-    std::function<SettingsPage*(QWidget*)> createPage;
+    std::function<SettingsPage*(AppSettings&, QWidget*)> createPage;
     // Схема настроек модуля: реестр понимает структуру "Настройки -> Модули",
     // и каждый модуль через это поле отвечает на вопрос фабрики
     // "какие настройки ты поддерживаешь?".
@@ -45,8 +46,6 @@ struct SettingsPageDescriptor
 class SettingsRegistry
 {
 public:
-    static SettingsRegistry& instance();
-
     bool registerPage(SettingsPageDescriptor descriptor);
     bool registerModulePage(const QString& moduleId, SettingsPageDescriptor descriptor);
     QVector<SettingsPageDescriptor> pages() const;

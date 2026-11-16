@@ -4,12 +4,10 @@
 #include <QHeaderView>
 #include <QtEndian>
 
-static bool registered = [](){
-    FormatPageFactory::instance().registerPage("4", [](){
-        return new MBRPage();
-    });
-    return true;
-}();
+void registerMbrPage(FormatPageFactory& factory)
+{
+    factory.registerPage("4", []() { return new MBRPage(); });
+}
 
 MBRPage::MBRPage(QWidget *parent)
     : FormatPage(parent)

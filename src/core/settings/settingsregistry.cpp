@@ -5,12 +5,6 @@
 #include <QDebug>
 #include <QSet>
 
-SettingsRegistry& SettingsRegistry::instance()
-{
-    static SettingsRegistry registry;
-    return registry;
-}
-
 bool SettingsRegistry::registerPage(SettingsPageDescriptor descriptor)
 {
     if (descriptor.categoryId.isEmpty() || descriptor.pageId.isEmpty()

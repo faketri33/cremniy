@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerCSharpLanguage()
+void registerCSharpLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("csharp"),
         QStringLiteral("C#"),
         {QStringLiteral("cs")},
@@ -35,7 +33,3 @@ void registerCSharpLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerCSharpLanguage)

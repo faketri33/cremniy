@@ -39,10 +39,11 @@ struct LanguageDefinition {
 ```
 
 A language registers one (or more) `LanguageDefinition` instances with
-`LanguageRegistry::instance().registerLanguage(...)`, typically from a
-static registration function triggered by the `CREMNIY_REGISTER_LANGUAGE`
-macro at file scope. Registration happens once, automatically, before
-`main()` runs — nothing else needs to call anything.
+`registry.registerLanguage(...)` from a function
+`void register<Name>Language(LanguageRegistry& registry)`. The registry is a
+plain object created by the application's composition root (`AppContext`),
+which calls `registerAllLanguages(registry)` once at startup. There is no
+global instance and no static initialisation.
 
 ## Step-by-Step: Adding a Language
 
@@ -78,13 +79,11 @@ complete, working example for a rule-based language:
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerZigLanguage()
+void registerZigLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("zig"),
         QStringLiteral("Zig"),
         {QStringLiteral("zig")},
@@ -107,10 +106,6 @@ void registerZigLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerZigLanguage)
 ```
 
 Field-by-field:
@@ -135,7 +130,7 @@ Field-by-field:
 If a language needs more than one closely related `LanguageDefinition`
 (like `make/MakeLanguage.cpp`, which registers both "make" and "cmake"),
 it's fine to register several from the same file and the same
-`CREMNIY_REGISTER_LANGUAGE` call — see that file for the pattern. Prefer
+registration function — see that file for the pattern. Prefer
 this only when the definitions are genuinely inseparable (same file
 historically, same tooling domain); otherwise each language gets its own
 directory, even closely related ones — see `java/`, `csharp/`, `go/`, and
@@ -169,43 +164,30 @@ same pattern used by `src/ui/MenuBar/Menus/`. You never edit
 `src/libs/CodeEditor/CMakeLists.txt` or the top-level `languages/`
 `CMakeLists.txt` to add a language.
 
-### 4. Add one line to LanguageRegistration.cpp
-
-Because `CodeEditor` is built as a **static library**, a linker is free to
-drop an object file entirely if nothing in the final binary references any
-symbol from it — and a language's `.cpp` file, on its own, exposes nothing
-that's called by name anywhere else. `CREMNIY_REGISTER_LANGUAGE` generates
-an externally-linked `<registerFn>_forceLink()` thunk specifically to give
-the linker a reason to keep the file; `LanguageRegistration.cpp` is the one
-place that calls every language's thunk explicitly, and `main()` calls
-`registerAllLanguages()` once at startup.
+### 4. Add the language to LanguageRegistration.cpp
 
 Open `src/libs/CodeEditor/src/languages/core/LanguageRegistration.cpp` and
-add two lines: an `extern` declaration alongside the others, and a call
-inside `registerAllLanguages()`:
+add a declaration alongside the others plus a call inside
+`registerAllLanguages()`:
 
 ```cpp
-extern void registerYamlLanguage_forceLink();
-extern void registerZigLanguage_forceLink();   // <- add this line
+void registerYamlLanguage(LanguageRegistry&);
+void registerZigLanguage(LanguageRegistry&);   // <- add this line
 
-void registerAllLanguages()
+void registerAllLanguages(LanguageRegistry& registry)
 {
     // ...
-    registerYamlLanguage_forceLink();
-    registerZigLanguage_forceLink();   // <- add this line
+    registerYamlLanguage(registry);
+    registerZigLanguage(registry);   // <- add this line
 }
 ```
 
-The function name is always `<the name you passed to
-CREMNIY_REGISTER_LANGUAGE>_forceLink` — for `registerZigLanguage`, that's
-`registerZigLanguage_forceLink`.
+Because the function is called explicitly, the linker always keeps the
+object file of a static library — no special "force link" step is needed.
 
-**If you skip this step:** the project still compiles and links
-successfully, but on some linkers/platforms your language simply won't
-appear at runtime — no error, no warning, just silently no highlighting.
-This is exactly the failure mode that motivated adding this step; see the
-comments in `LanguageRegistry.h` and `LanguageRegistration.cpp` for the
-full explanation if you're curious.
+**If you skip this step:** the project compiles, but the language is not
+registered and files stay unhighlighted. `languageregistrytest` checks
+that the built-in languages resolve.
 
 ### 5. Build and verify
 

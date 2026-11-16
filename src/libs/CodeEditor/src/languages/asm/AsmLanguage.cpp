@@ -2,11 +2,9 @@
 
 #include "asm/AsmHighlighter.h"
 
-namespace {
-
-void registerAsmLanguage()
+void registerAsmLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("asm"),
         QStringLiteral("Assembly"),
         {QStringLiteral("asm"), QStringLiteral("s")},
@@ -15,7 +13,3 @@ void registerAsmLanguage()
         [](QTextDocument* document) -> QStyleSyntaxHighlighter* { return new AsmHighlighter(document); }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerAsmLanguage)

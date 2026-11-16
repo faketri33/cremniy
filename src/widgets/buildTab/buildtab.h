@@ -2,7 +2,7 @@
 #define BUILDTAB_H
 
 #include <QWidget>
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 #include "core/buildman/buildmanager.h"
 
 class BuildTab : public QWidget {

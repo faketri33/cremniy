@@ -27,17 +27,14 @@ target_include_directories(cremniy_git_core
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..
 )
 
-if(CREMNIY_LIBGIT2_INCLUDE_DIRS)
-    target_include_directories(cremniy_git_core PRIVATE ${CREMNIY_LIBGIT2_INCLUDE_DIRS})
-endif()
-
 target_link_libraries(cremniy_git_core
     PUBLIC
         Qt6::Core
     PRIVATE
         cremniy_settings_core
         Qt6::Concurrent
-        ${CREMNIY_LIBGIT2_TARGET}
+        cremniy_libgit2
+        cremniy_warnings
 )
 
 if(BUILD_TESTING)

@@ -30,13 +30,15 @@ class QTimer;
  * A code editor that reads directly from FileDataBuffer without
  * data duplication. Renders only visible lines for efficiency.
  */
+class LanguageRegistry;
+
 class CustomCodeEditor : public QAbstractScrollArea, public ToolWidget {
     Q_OBJECT
 
 public:
-    explicit CustomCodeEditor(QWidget* parent = nullptr);
+    explicit CustomCodeEditor(const LanguageRegistry& languageRegistry, QWidget* parent = nullptr);
     ~CustomCodeEditor() override;
-    static QString syntaxKeyForPath(const QString& filePath);
+    QString syntaxKeyForPath(const QString& filePath) const;
     
     // ToolWidget interface
     void setBData(const QByteArray& data) override;
@@ -284,6 +286,7 @@ private:
     bool m_pendingTripleClick;
     QTextDocument* m_highlightDocument;
     QSyntaxStyle* m_syntaxStyle;
+    const LanguageRegistry& m_languageRegistry;
     QString m_languageResource;
     int m_savedVerticalScrollValue;
     int m_savedHorizontalScrollValue;

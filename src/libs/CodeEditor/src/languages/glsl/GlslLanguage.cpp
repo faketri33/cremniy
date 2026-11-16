@@ -4,11 +4,9 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerGlslLanguage()
+void registerGlslLanguage(LanguageRegistry& registry)
 {
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("glsl"),
         QStringLiteral("GLSL"),
         {QStringLiteral("glsl"), QStringLiteral("vert"), QStringLiteral("frag")},
@@ -24,7 +22,3 @@ void registerGlslLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerGlslLanguage)

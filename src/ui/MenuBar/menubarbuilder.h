@@ -2,7 +2,8 @@
 #define MENUBARBUILDER_H
 
 #include <qmenubar.h>
-#include "app/IDEWindow/idewindow.h"
+
+class IDEWindow;
 
 class MenuBarBuilder
 {

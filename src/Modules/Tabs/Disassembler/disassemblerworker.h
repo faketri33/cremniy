@@ -2,6 +2,7 @@
 #define DISASSEMBLERWORKER_H
 
 #include <QObject>
+#include "disassemblersettings.h"
 #include <QHash>
 #include <QString>
 #include <QVector>
@@ -43,7 +44,10 @@ public:
     explicit DisassemblerWorker(QObject *parent = nullptr);
 
 public slots:
-    void disassemble(const QString &filePath, const QString &arch);
+    // Settings are passed by value: the worker lives in its own thread and
+    // must not touch the (main-thread) settings object.
+    void disassemble(const QString &filePath, const QString &arch,
+                     const DisassemblerSettings::Snapshot &settings);
     void cancel();
 
 signals:

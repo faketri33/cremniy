@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerShellLanguage()
+void registerShellLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("shell"),
         QStringLiteral("Shell"),
         {QStringLiteral("sh"), QStringLiteral("bash"), QStringLiteral("zsh"), QStringLiteral("fish")},
@@ -32,7 +30,3 @@ void registerShellLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerShellLanguage)

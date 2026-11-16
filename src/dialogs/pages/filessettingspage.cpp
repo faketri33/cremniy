@@ -19,20 +19,25 @@ QString pageTitle()
     return QObject::tr("Files");
 }
 
-const bool registered = SettingsRegistry::instance().registerPage({
-    "workspace.files",
-    "workspace",
-    &categoryTitle,
-    200,
-    &pageTitle,
-    100,
-    "application",
-    [](QWidget* parent) { return new FilesSettingsPage(parent); }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "workspace.files",
+        "workspace",
+        &categoryTitle,
+        200,
+        &pageTitle,
+        100,
+        "application",
+        [](AppSettings& settings, QWidget* parent) { return new FilesSettingsPage(settings, parent); },
+        {}
+    };
+}
 }
 
-FilesSettingsPage::FilesSettingsPage(QWidget* parent)
+FilesSettingsPage::FilesSettingsPage(AppSettings& settings, QWidget* parent)
     : SettingsPage(parent)
+    , m_settings(settings)
 {
     auto* layout = new QVBoxLayout(this);
     auto* hint = new QLabel(tr("One pattern per line. Examples: node_modules, .git, *.log, dist/"), this);
@@ -47,7 +52,7 @@ FilesSettingsPage::FilesSettingsPage(QWidget* parent)
 
 void FilesSettingsPage::load()
 {
-    m_excludedPatterns->setPlainText(AppSettings::excludedPatterns().join('\n'));
+    m_excludedPatterns->setPlainText(m_settings.excludedPatterns().join('\n'));
 }
 
 bool FilesSettingsPage::validate(QString* errorMessage) const
@@ -75,5 +80,10 @@ void FilesSettingsPage::apply()
         if (!normalized.isEmpty())
             patterns.append(normalized);
     }
-    AppSettings::setExcludedPatterns(patterns);
+    m_settings.setExcludedPatterns(patterns);
+}
+
+void registerFilesSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerPage(descriptor());
 }

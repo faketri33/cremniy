@@ -11,19 +11,13 @@
 #include <QFontDatabase>
 #include <QUrl>
 
+#include "app/AppContext.h"
 #include "app/WelcomeWindow/WelcomeForm/welcome_form.h"
-#include "core/locale/LanguageManager.h"
 #include "core/update/updatechecker.h"
-#include "libs/CodeEditor/include/languages/LanguageRegistration.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-    // Force-links and registers every supported syntax-highlighting
-    // language. Must run before any CustomCodeEditor is constructed. See
-    // LanguageRegistration.h for why this explicit call is necessary.
-    registerAllLanguages();
 
     QCoreApplication::setOrganizationName("Munirov");
     QCoreApplication::setApplicationName("Cremniy");
@@ -32,12 +26,16 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(":/icons/icon.svg"));
 #endif
 
+    // Composition root. Declared after QApplication and before the windows,
+    // so it outlives them and is destroyed before QApplication.
+    AppContext context;
+
     // - - Fonts - -
-    LanguageManager::instance().loadUserDefaultLocale();
+    context.languageManager().loadUserDefaultLocale();
 
     int jbFontRegId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Regular.ttf");
-    int jbFontBoldId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Bold.ttf");
-    int jbFontItalId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Italic.ttf");
 
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(jbFontRegId);
     QString jbFontFamily = !fontFamilies.isEmpty() ? fontFamilies.at(0) : "Sans Serif";
@@ -92,7 +90,7 @@ int main(int argc, char *argv[])
 
     a.setStyleSheet(baseStyle + "\n" + themeData);
 
-    WelcomeForm wf;
+    WelcomeForm wf(context);
 
     //cli path selector
     const QStringList args = QCoreApplication::arguments();

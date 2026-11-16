@@ -5,6 +5,7 @@
 #include <qfileinfo.h>
 
 #include "core/file/FileDataBuffer.h"
+#include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
 #include "ui/ToolsTabWidget/toolstabwidget.h"
 #include "core/modules/ModuleManager.h"
@@ -31,8 +32,9 @@ QVector<TabGitBlameLineInfo> toTabBlameLines(const QVector<BlameLineInfo>& lines
 
 } // namespace
 
-ToolsTabWidget::ToolsTabWidget(QWidget *parent, QString path)
+ToolsTabWidget::ToolsTabWidget(AppContext &context, QWidget *parent, QString path)
     : QTabWidget(parent)
+    , m_context(context)
     , m_filePath(std::move(path))
 {
     setTabsClosable(true);
@@ -135,10 +137,10 @@ void ToolsTabWidget::createAlwaysTabs()
 {
 
     QString m_alwaysVisibleGroup = "always";
-    QList<QString> groups = ModuleManager::instance().getGroups<TabBase>();
+    QList<QString> groups = m_context.moduleManager().getGroups<TabBase>();
     if (!groups.contains(m_alwaysVisibleGroup)) return;
 
-    const QVector<ModuleDescription<TabBase>>& tabsDesc = ModuleManager::instance().getByGroup<TabBase>(m_alwaysVisibleGroup);
+    const QVector<ModuleDescription<TabBase>>& tabsDesc = m_context.moduleManager().getByGroup<TabBase>(m_alwaysVisibleGroup);
 
     for (const ModuleDescription<TabBase>& desc: tabsDesc){
         this->createTab(desc, true, false);
@@ -148,7 +150,7 @@ void ToolsTabWidget::createAlwaysTabs()
 
 void ToolsTabWidget::createTab(const ModuleDescription<TabBase>& desc, bool isAlways, bool tabClosable){
 
-    TabBase* tab = desc.creator();
+    TabBase* tab = desc.creator(m_context.moduleContext());
     if (!tab) return;
 
     connectGitIntegration(tab);
@@ -195,7 +197,7 @@ void ToolsTabWidget::createTab(const ModuleDescription<TabBase>& desc, bool isAl
 
 void ToolsTabWidget::connectGitIntegration(TabBase* tab)
 {
-    GitBlameService* service = GitBlameService::instance();
+    GitBlameService* service = &m_context.gitBlameService();
 
     connect(tab, &TabBase::gitBlameRequested,
             service, &GitBlameService::requestBlame);

@@ -1,4 +1,6 @@
 #include "idewindow.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
+#include "app/AppContext.h"
 #include "core/FindEngine/findengine.h"
 #include "core/settings/appsettings.h"
 #include "QFileSystemModel"
@@ -21,8 +23,8 @@
 #include <qtimer.h>
 #include <QtConcurrent/QtConcurrentRun>
 
-IDEWindow::IDEWindow(const QString &ProjectPath, QWidget *parent)
-    : QMainWindow(parent), m_projectPath(ProjectPath) {
+IDEWindow::IDEWindow(AppContext &context, const QString &ProjectPath, QWidget *parent)
+    : QMainWindow(parent), m_context(context), m_projectPath(ProjectPath) {
     setProperty("projectPath", ProjectPath);
     // - - Window Settings - -
     this->setWindowState(Qt::WindowMaximized);
@@ -62,11 +64,11 @@ IDEWindow::IDEWindow(const QString &ProjectPath, QWidget *parent)
 
     leftLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_filesTabWidget = new FilesTabWidget(this);
+    m_filesTabWidget = new FilesTabWidget(m_context, this);
     m_filesTabWidget->setObjectName("filesTabWidget");
 
     const auto model = new QFileSystemModel();
-    const auto proxy = new ExclusionFilterProxyModel();
+    const auto proxy = new ExclusionFilterProxyModel(m_context.appSettings());
 
     m_filesTreeView = new FileTreePanel(this, model, proxy, ProjectPath);
     leftLayout->addWidget(m_filesTreeView, 1);
@@ -197,7 +199,7 @@ void IDEWindow::startFind(const SearchOptions& options)
     }
 
     SearchOptions effectiveOptions = options;
-    effectiveOptions.excludedPatterns = AppSettings::excludedPatterns();
+    effectiveOptions.excludedPatterns = m_context.appSettings().excludedPatterns();
     const SearchScope documentScope = options.scope == SearchScope::CurrentFile
         ? SearchScope::CurrentFile
         : SearchScope::OpenFiles;
@@ -441,7 +443,7 @@ void IDEWindow::on_SaveFile() {
 }
 
 void IDEWindow::on_openSettings() {
-    SettingsDialog dlg(this);
+    SettingsDialog dlg(m_context, this);
     dlg.exec();
 }
 

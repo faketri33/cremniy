@@ -22,7 +22,7 @@ FileTreePanel::FileTreePanel(QWidget* parent, QFileSystemModel* model, QSortFilt
           m_treeView(new QTreeView(this)),
           m_proxy(proxy),
           m_fileModel(model),
-          m_iconProvider(new IconProvider()),
+          m_iconProvider(std::make_unique<IconProvider>()),
           m_root_path(rootPath){
     m_proxy->setParent(this);
     m_fileModel->setParent(this);
@@ -32,13 +32,11 @@ FileTreePanel::FileTreePanel(QWidget* parent, QFileSystemModel* model, QSortFilt
     setupConnections();
 }
 
-FileTreePanel::~FileTreePanel() {
-    delete m_iconProvider;
-}
+FileTreePanel::~FileTreePanel() = default;
 
 void FileTreePanel::setupModel() {
     m_fileModel->setRootPath(m_root_path);
-    m_fileModel->setIconProvider(m_iconProvider);
+    m_fileModel->setIconProvider(m_iconProvider.get());
     m_proxy->setSourceModel(m_fileModel);
     m_treeView->setModel(m_proxy);
     m_treeView->setRootIndex(
@@ -140,7 +138,7 @@ void FileTreePanel::remove() {
 
     QMessageBox confirmRemove(QMessageBox::Question, tr("Delete"), body, QMessageBox::NoButton);
     const auto yes = confirmRemove.addButton(tr("Yes"), QMessageBox::YesRole);
-    const auto no = confirmRemove.addButton(tr("No"), QMessageBox::NoRole);
+    confirmRemove.addButton(tr("No"), QMessageBox::NoRole);
     confirmRemove.exec();
 
     const auto reply = confirmRemove.clickedButton();

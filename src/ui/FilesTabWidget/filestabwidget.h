@@ -4,13 +4,15 @@
 #include <QTabWidget>
 #include "core/modules/ModuleManager.h"
 #include "core/FindEngine/findtypes.h"
-#include "project_info_manager.h"
+#include "core/project/project_info_manager.h"
 #include "widgets/filetab.h"
+
+class AppContext;
 
 class FilesTabWidget : public QTabWidget {
     Q_OBJECT
 public:
-    FilesTabWidget(QWidget *parent = nullptr);
+    explicit FilesTabWidget(AppContext &context, QWidget *parent = nullptr);
     ~FilesTabWidget() override;
 
     void tabSelect(int index);
@@ -40,6 +42,7 @@ public slots:
     void setGitBlameSlot(bool checked);
   
 private:
+    AppContext &m_context;
     void switchTab(int page);
     void setPinnedTabText(int index, FileTab *tab);
     int pinnedCount() const;

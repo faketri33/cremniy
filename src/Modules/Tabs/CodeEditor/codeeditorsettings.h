@@ -3,6 +3,8 @@
 
 #include <QString>
 
+class AppSettings;
+
 // Настройки модуля CodeEditor.
 //
 // ВСЁ, что касается настроек этого модуля (ключи, умолчания и уведомления
@@ -18,15 +20,15 @@ QString keyGitBlameEnabled();
 QString keyGitBlameColor();
 QString keyGitBlamePadding();
 
-bool gitBlameEnabled();
-void setGitBlameEnabled(bool enabled);
+bool gitBlameEnabled(const AppSettings &settings);
+void setGitBlameEnabled(AppSettings &settings, bool enabled);
 
 // Default Gray chain is documented in the settings page UI.
-QString gitBlameColor();
-void setGitBlameColor(const QString &color);
+QString gitBlameColor(const AppSettings &settings);
+void setGitBlameColor(AppSettings &settings, const QString &color);
 
-int gitBlamePadding();
-void setGitBlamePadding(int padding);
+int gitBlamePadding(const AppSettings &settings);
+void setGitBlamePadding(AppSettings &settings, int padding);
 
 } // namespace CodeEditorSettings
 

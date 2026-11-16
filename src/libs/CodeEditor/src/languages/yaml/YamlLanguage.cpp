@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerYamlLanguage()
+void registerYamlLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("yaml"),
         QStringLiteral("YAML"),
         {QStringLiteral("yaml"), QStringLiteral("yml")},
@@ -26,7 +24,3 @@ void registerYamlLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerYamlLanguage)

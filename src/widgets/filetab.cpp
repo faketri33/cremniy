@@ -1,14 +1,15 @@
 #include "filetab.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
 #include <qboxlayout.h>
 #include <qdir.h>
 #include <qevent.h>
 
-FileTab::FileTab(QWidget* parent, QString path)
+FileTab::FileTab(AppContext& context, QWidget* parent, QString path)
     : QWidget(parent),
     filePath(path)
 {
     QVBoxLayout *vlayout = new QVBoxLayout(this);
-    m_tooltabWidget = new ToolsTabWidget(this, path);
+    m_tooltabWidget = new ToolsTabWidget(context, this, path);
     m_tooltabWidget->setObjectName("toolTabWidget");
     vlayout->addWidget(m_tooltabWidget);
     vlayout->setContentsMargins(0,0,0,0);

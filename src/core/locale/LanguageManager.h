@@ -5,18 +5,26 @@
 #ifndef CREMNIY_LANGUAGE_MANAGER_H
 #define CREMNIY_LANGUAGE_MANAGER_H
 
+#include <memory>
+
 #include <QTranslator>
 
 #include "config.h"
 
 
+class AppSettings;
+
 class LanguageManager {
 private:
+    AppSettings& m_settings;
     std::unique_ptr<QTranslator> _m_base_translator;
     std::unique_ptr<QTranslator> _m_translator;
 
 public:
-    static LanguageManager& instance();
+    explicit LanguageManager(AppSettings& settings) : m_settings(settings) {}
+    ~LanguageManager();
+    LanguageManager(const LanguageManager&) = delete;
+    LanguageManager& operator=(const LanguageManager&) = delete;
 
     void loadUserDefaultLocale();
 

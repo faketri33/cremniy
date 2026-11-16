@@ -15,13 +15,13 @@ struct InstructionHelpEntry {
 class InstructionHelpService
 {
 public:
-    static InstructionHelpService &instance();
+    // The locale default keeps the previous behaviour (Russian help texts).
+    explicit InstructionHelpService(const QString &locale = QStringLiteral("ru"));
 
     QString tooltipForToken(const QString &token, const QString &lineContext = QString()) const;
     QString tooltipForLine(const QString &lineContext) const;
 
 private:
-    InstructionHelpService();
     void loadLocale(const QString &locale);
     static QString normalizeMnemonic(const QString &value);
     static QString extractMnemonicFromLine(const QString &line);

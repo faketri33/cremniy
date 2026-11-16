@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerPhpLanguage()
+void registerPhpLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("php"),
         QStringLiteral("PHP"),
         {QStringLiteral("php")},
@@ -31,7 +29,3 @@ void registerPhpLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerPhpLanguage)

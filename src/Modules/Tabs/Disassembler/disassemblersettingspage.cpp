@@ -31,27 +31,30 @@ QString pageTitle()
     return QCoreApplication::translate("DisassemblerTab", "Disassembler");
 }
 
-const bool registered = SettingsRegistry::instance().registerModulePage("disassembler", {
-    "modules.disassembler",
-    "modules",
-    &categoryTitle,
-    300,
-    &pageTitle,
-    200,
-    {},
-    [](QWidget* parent) { return new DisassemblerSettingsPage(parent); },
-    // Схема настроек этого модуля: фабрика собирает её, чтобы экспорт/
-    // импорт INI знал о модуле, не имея о нём никакой информации в ядре.
-    {
-        { DisassemblerSettings::keyBackend(), static_cast<int>(DisassemblerSettings::Backend::Objdump) },
-        { DisassemblerSettings::keyObjdumpPath(), QString() },
-        { DisassemblerSettings::keyRadare2Path(), QString() },
-        { DisassemblerSettings::keyInsnLimitPerSection(), 4000 },
-        { DisassemblerSettings::keyRadare2AnalysisLevel(), static_cast<int>(DisassemblerSettings::AnalysisLevel::None) },
-        { DisassemblerSettings::keyAsmSyntax(), static_cast<int>(DisassemblerSettings::Syntax::Intel) },
-        { DisassemblerSettings::keyRadare2PreCommands(), QString() },
-    }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "modules.disassembler",
+        "modules",
+        &categoryTitle,
+        300,
+        &pageTitle,
+        200,
+        {},
+        [](AppSettings& settings, QWidget* parent) { return new DisassemblerSettingsPage(settings, parent); },
+        // Схема настроек этого модуля: фабрика собирает её, чтобы экспорт/
+        // импорт INI знал о модуле, не имея о нём никакой информации в ядре.
+        {
+            { DisassemblerSettings::keyBackend(), static_cast<int>(DisassemblerSettings::Backend::Objdump) },
+            { DisassemblerSettings::keyObjdumpPath(), QString() },
+            { DisassemblerSettings::keyRadare2Path(), QString() },
+            { DisassemblerSettings::keyInsnLimitPerSection(), 4000 },
+            { DisassemblerSettings::keyRadare2AnalysisLevel(), static_cast<int>(DisassemblerSettings::AnalysisLevel::None) },
+            { DisassemblerSettings::keyAsmSyntax(), static_cast<int>(DisassemblerSettings::Syntax::Intel) },
+            { DisassemblerSettings::keyRadare2PreCommands(), QString() },
+        }
+    };
+}
 
 QString resolvedExecutable(const QString& userPath, const QString& executableName)
 {
@@ -112,8 +115,9 @@ QWidget* createPathRow(
 }
 }
 
-DisassemblerSettingsPage::DisassemblerSettingsPage(QWidget* parent)
+DisassemblerSettingsPage::DisassemblerSettingsPage(AppSettings& settings, QWidget* parent)
     : SettingsPage(parent)
+    , m_settings(settings)
 {
     auto* layout = new QVBoxLayout(this);
 
@@ -194,13 +198,13 @@ DisassemblerSettingsPage::DisassemblerSettingsPage(QWidget* parent)
 
 void DisassemblerSettingsPage::load()
 {
-    m_backendCombo->setCurrentIndex(m_backendCombo->findData(static_cast<int>(DisassemblerSettings::backend())));
-    m_insnLimit->setValue(DisassemblerSettings::insnLimitPerSection());
-    m_syntaxCombo->setCurrentIndex(m_syntaxCombo->findData(static_cast<int>(DisassemblerSettings::asmSyntax())));
-    m_objdumpPath->setText(DisassemblerSettings::objdumpPath());
-    m_radare2Path->setText(DisassemblerSettings::radare2Path());
-    m_r2AnalysisCombo->setCurrentIndex(m_r2AnalysisCombo->findData(static_cast<int>(DisassemblerSettings::radare2AnalysisLevel())));
-    m_r2PreCommands->setPlainText(DisassemblerSettings::radare2PreCommands().replace(';', '\n'));
+    m_backendCombo->setCurrentIndex(m_backendCombo->findData(static_cast<int>(DisassemblerSettings::backend(m_settings))));
+    m_insnLimit->setValue(DisassemblerSettings::insnLimitPerSection(m_settings));
+    m_syntaxCombo->setCurrentIndex(m_syntaxCombo->findData(static_cast<int>(DisassemblerSettings::asmSyntax(m_settings))));
+    m_objdumpPath->setText(DisassemblerSettings::objdumpPath(m_settings));
+    m_radare2Path->setText(DisassemblerSettings::radare2Path(m_settings));
+    m_r2AnalysisCombo->setCurrentIndex(m_r2AnalysisCombo->findData(static_cast<int>(DisassemblerSettings::radare2AnalysisLevel(m_settings))));
+    m_r2PreCommands->setPlainText(DisassemblerSettings::radare2PreCommands(m_settings).replace(';', '\n'));
     updateUiState();
     updateDependencyStatus();
 }
@@ -213,14 +217,14 @@ bool DisassemblerSettingsPage::validate(QString* errorMessage) const
 
 void DisassemblerSettingsPage::apply()
 {
-    DisassemblerSettings::setBackend(static_cast<DisassemblerSettings::Backend>(m_backendCombo->currentData().toInt()));
-    DisassemblerSettings::setInsnLimitPerSection(m_insnLimit->value());
-    DisassemblerSettings::setAsmSyntax(static_cast<DisassemblerSettings::Syntax>(m_syntaxCombo->currentData().toInt()));
-    DisassemblerSettings::setObjdumpPath(m_objdumpPath->text());
-    DisassemblerSettings::setRadare2Path(m_radare2Path->text());
-    DisassemblerSettings::setRadare2AnalysisLevel(static_cast<DisassemblerSettings::AnalysisLevel>(m_r2AnalysisCombo->currentData().toInt()));
-    DisassemblerSettings::setRadare2PreCommands(m_r2PreCommands->toPlainText().split('\n', Qt::SkipEmptyParts).join(';'));
-    // Каждый сеттер выше сам слает SettingsNotifier::settingsChanged(key),
+    DisassemblerSettings::setBackend(m_settings, static_cast<DisassemblerSettings::Backend>(m_backendCombo->currentData().toInt()));
+    DisassemblerSettings::setInsnLimitPerSection(m_settings, m_insnLimit->value());
+    DisassemblerSettings::setAsmSyntax(m_settings, static_cast<DisassemblerSettings::Syntax>(m_syntaxCombo->currentData().toInt()));
+    DisassemblerSettings::setObjdumpPath(m_settings, m_objdumpPath->text());
+    DisassemblerSettings::setRadare2Path(m_settings, m_radare2Path->text());
+    DisassemblerSettings::setRadare2AnalysisLevel(m_settings, static_cast<DisassemblerSettings::AnalysisLevel>(m_r2AnalysisCombo->currentData().toInt()));
+    DisassemblerSettings::setRadare2PreCommands(m_settings, m_r2PreCommands->toPlainText().split('\n', Qt::SkipEmptyParts).join(';'));
+    // Каждый сеттер выше сам слает AppSettings::settingsChanged(key),
     // так что отдельный агрегатный сигнал модуля не нужен.
 }
 
@@ -274,4 +278,9 @@ void DisassemblerSettingsPage::testTools()
     }
     QMessageBox::information(this, tr("Tool check"), results.join('\n'));
     updateDependencyStatus();
+}
+
+void registerDisassemblerSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerModulePage("disassembler", descriptor());
 }

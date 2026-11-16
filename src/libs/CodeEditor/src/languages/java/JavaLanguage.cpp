@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerJavaLanguage()
+void registerJavaLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("java"),
         QStringLiteral("Java"),
         {QStringLiteral("java")},
@@ -34,7 +32,3 @@ void registerJavaLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerJavaLanguage)

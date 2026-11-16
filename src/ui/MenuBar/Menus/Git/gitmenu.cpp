@@ -1,6 +1,7 @@
 #include "gitmenu.h"
+#include "app/IDEWindow/idewindow.h"
+#include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
-#include "ui/MenuBar/menufactory.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QTextEdit>
@@ -11,14 +12,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QDir>
-
-// регистрируем меню
-static bool registered = [](){
-    MenuFactory::instance().registerMenu("7", [](){
-        return new GitMenu();
-    });
-    return true;
-}();
 
 GitMenu::GitMenu() : BaseMenu(tr("Git"))
 {
@@ -153,7 +146,7 @@ void GitMenu::setupConnections(IDEWindow* ideWind)
     connect(m_stashList, &QAction::triggered, this, &GitMenu::onStashList);
     connect(m_showLogGraph, &QAction::triggered, this, &GitMenu::onShowLogGraph);
 
-    auto *blameService = GitBlameService::instance();
+    auto *blameService = &ideWind->appContext().gitBlameService();
     connect(m_toggleBlame, &QAction::toggled,
             ideWind, &IDEWindow::on_SetGitBlame);
     connect(ideWind, &IDEWindow::gitBlameEnabledChanged,

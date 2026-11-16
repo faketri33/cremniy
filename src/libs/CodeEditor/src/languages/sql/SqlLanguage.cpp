@@ -3,13 +3,11 @@
 
 #include <QRegularExpression>
 
-namespace {
-
-void registerSqlLanguage()
+void registerSqlLanguage(LanguageRegistry& registry)
 {
     using namespace LanguageRuleHelpers;
 
-    LanguageRegistry::instance().registerLanguage({
+    registry.registerLanguage({
         QStringLiteral("sql"),
         QStringLiteral("SQL"),
         {QStringLiteral("sql")},
@@ -30,7 +28,3 @@ void registerSqlLanguage()
         }
     });
 }
-
-} // namespace
-
-CREMNIY_REGISTER_LANGUAGE(registerSqlLanguage)

@@ -1,14 +1,22 @@
 #ifndef MODULEMANAGER_H
 #define MODULEMANAGER_H
 
+#include <algorithm>
+#include <any>
 #include <functional>
+#include <tuple>
+#include <unordered_map>
+
+#include <QHash>
 #include <QList>
 #include <QString>
+#include <QVector>
 
+struct ModuleContext;
 
 template<typename T>
 struct ModuleDescription {
-    std::function<T*()> creator;
+    std::function<T*(const ModuleContext&)> creator;
     std::function<QString()> name;
     int position = 0;
 };
@@ -16,13 +24,14 @@ struct ModuleDescription {
 template<typename T>
 using ModuleStorage = QHash<QString, QVector<ModuleDescription<T>>>;
 
+/// Registry of pluggable modules (tabs, windows, references), grouped per
+/// module base type T. Owned by AppContext and populated explicitly by
+/// registerBuiltinModules().
 class ModuleManager {
 
 public:
-    static ModuleManager& instance();
-
     template<typename T>
-    void registerModule(std::function<QString()> name, const QString &group, std::function<T*()> creator, int position = 0) {
+    void registerModule(std::function<QString()> name, const QString &group, std::function<T*(const ModuleContext&)> creator, int position = 0) {
         ModuleDescription<T> desc{
             std::move(creator),
             std::move(name),
@@ -32,7 +41,7 @@ public:
     }
 
     template <typename T>
-    T* create(const QString& group, const int& index) {
+    T* create(const QString& group, const int& index, const ModuleContext& context) const {
         const auto& storage = getStorageConst<T>();
         auto it = storage.find(group.trimmed());
         if (it == storage.end()) return nullptr;
@@ -40,7 +49,7 @@ public:
         const auto& vec = it.value();
         if (index < 0 || index >= vec.size()) return nullptr;
 
-        return vec[index].creator();
+        return vec[index].creator(context);
     }
 
     template<typename T>
@@ -51,14 +60,20 @@ public:
 
 private:
     template<typename T>
-    static ModuleStorage<T>& getStorage() {
-        static ModuleStorage<T> storage;
-        return storage;
+    ModuleStorage<T>& getStorage() {
+        auto it = m_storages.find(storageKey<T>());
+        if (it == m_storages.end())
+            it = m_storages.emplace(storageKey<T>(), ModuleStorage<T>{}).first;
+        return *std::any_cast<ModuleStorage<T>>(&it->second);
     }
 
     template<typename T>
-    static const ModuleStorage<T>& getStorageConst() {
-        return getStorage<T>();
+    const ModuleStorage<T>& getStorageConst() const {
+        static const ModuleStorage<T> empty;
+        auto it = m_storages.find(storageKey<T>());
+        if (it == m_storages.end())
+            return empty;
+        return *std::any_cast<ModuleStorage<T>>(&it->second);
     }
 
     template<typename T>
@@ -80,6 +95,15 @@ private:
         });
         return keys;
     }
+
+    // typeid(T) would require T to be complete; a per-type static address does not.
+    template<typename T>
+    static const void* storageKey() {
+        static const char key = 0;
+        return &key;
+    }
+
+    std::unordered_map<const void*, std::any> m_storages;
 };
 
 #endif // MODULEMANAGER_H

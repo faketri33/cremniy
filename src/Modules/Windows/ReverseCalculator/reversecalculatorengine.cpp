@@ -5,11 +5,6 @@
 #include <QStack>
 #include <cmath>
 
-ReverseCalculatorEngine &ReverseCalculatorEngine::instance() {
-    static ReverseCalculatorEngine inst;
-    return inst;
-}
-
 qulonglong ReverseCalculatorEngine::maskToWidth(qulonglong v, int bits) {
     if (bits >= 64) return v;
     return v & ((1ULL << bits) - 1ULL);
@@ -93,7 +88,7 @@ ParseResult ReverseCalculatorEngine::parseExpression(const QString &expression, 
 
     // detect base from first operand if possible
     for (const auto &t : tokens) {
-        if (t.type == Token::Number) {
+        if (t.type == Token::Type::Number) {
             result.base = detectBase(t.value);
             break;
         }
@@ -103,14 +98,14 @@ ParseResult ReverseCalculatorEngine::parseExpression(const QString &expression, 
     QStack<Token> operators;
 
     for (const auto &token : tokens) {
-        if (token.type == Token::Number) {
+        if (token.type == Token::Type::Number) {
             output.append(token);
-        } else if (token.type == Token::OpenParen) {
+        } else if (token.type == Token::Type::OpenParen) {
             operators.push(token);
-        } else if (token.type == Token::CloseParen) {
+        } else if (token.type == Token::Type::CloseParen) {
             bool found = false;
             while (!operators.isEmpty()) {
-                if (operators.top().type == Token::OpenParen) {
+                if (operators.top().type == Token::Type::OpenParen) {
                     operators.pop();
                     found = true;
                     break;
@@ -121,8 +116,8 @@ ParseResult ReverseCalculatorEngine::parseExpression(const QString &expression, 
                 result.error = "Unmatched closing parenthesis";
                 return result;
             }
-        } else if (token.type == Token::Operator) {
-            while (!operators.isEmpty() && operators.top().type == Token::Operator) {
+        } else if (token.type == Token::Type::Operator) {
+            while (!operators.isEmpty() && operators.top().type == Token::Type::Operator) {
                 const auto &top = operators.top();
                 if ((!token.rightAssociative && token.precedence <= top.precedence) ||
                     (token.rightAssociative && token.precedence < top.precedence)) {
@@ -136,7 +131,7 @@ ParseResult ReverseCalculatorEngine::parseExpression(const QString &expression, 
     }
 
     while (!operators.isEmpty()) {
-        if (operators.top().type == Token::OpenParen) {
+        if (operators.top().type == Token::Type::OpenParen) {
             result.error = "Unmatched opening parenthesis";
             return result;
         }
@@ -145,14 +140,14 @@ ParseResult ReverseCalculatorEngine::parseExpression(const QString &expression, 
 
     QStack<qulonglong> stack;
     for (const auto &token : output) {
-        if (token.type == Token::Number) {
+        if (token.type == Token::Type::Number) {
             auto val = parseValue(token.value);
             if (!val) {
                 result.error = "Invalid number (" + token.value + ")";
                 return result;
             }
             stack.push(*val);
-        } else if (token.type == Token::Operator) {
+        } else if (token.type == Token::Type::Operator) {
             if (token.unary) {
                 if (stack.isEmpty()) {
                     result.error = "Missing operand for " + token.value;
@@ -215,11 +210,11 @@ QList<ReverseCalculatorEngine::Token> ReverseCalculatorEngine::tokenize(const QS
         t.value = val;
         
         if (val == "(") {
-            t.type = Token::OpenParen;
+            t.type = Token::Type::OpenParen;
         } else if (val == ")") {
-            t.type = Token::CloseParen;
+            t.type = Token::Type::CloseParen;
         } else if (QString("+-*/%&|^~<>").contains(val[0])) {
-            t.type = Token::Operator;
+            t.type = Token::Type::Operator;
             if (val == "~") {
                 t.precedence = 7;
                 t.rightAssociative = true;
@@ -228,7 +223,7 @@ QList<ReverseCalculatorEngine::Token> ReverseCalculatorEngine::tokenize(const QS
                 t.precedence = 6;
             } else if (val == "+" || val == "-") {
                 // check unary
-                if (tokens.isEmpty() || tokens.last().type == Token::OpenParen || tokens.last().type == Token::Operator) {
+                if (tokens.isEmpty() || tokens.last().type == Token::Type::OpenParen || tokens.last().type == Token::Type::Operator) {
                     t.precedence = 7;
                     t.rightAssociative = true;
                     t.unary = true;
@@ -245,7 +240,7 @@ QList<ReverseCalculatorEngine::Token> ReverseCalculatorEngine::tokenize(const QS
                 t.precedence = 1;
             }
         } else {
-            t.type = Token::Number;
+            t.type = Token::Type::Number;
         }
         tokens.append(t);
         lastEnd = match.capturedEnd();

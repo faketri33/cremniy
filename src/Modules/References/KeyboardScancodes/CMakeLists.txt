@@ -1,6 +1,11 @@
-target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/keyboardscancodesref.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/keyboardscancodesref.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/keyboardscancodevizwidget.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/keyboardscancodevizwidget.h
+add_library(cremniy_module_keyboard_scancodes STATIC
+    keyboardscancodesref.cpp
+    keyboardscancodesref.h
+    keyboardscancodevizwidget.cpp
+    keyboardscancodevizwidget.h
+)
+
+target_link_libraries(cremniy_module_keyboard_scancodes
+    PUBLIC  cremniy_module_api
+    PRIVATE cremniy_warnings
 )

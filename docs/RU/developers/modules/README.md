@@ -99,7 +99,7 @@ Cremniy предоставляет **тщательно отобранные** �
 - Создать основной класс модуля, наследующий определенный класс в зависимости от категории
 - Реализовать логику работы модуля
 - В корне директории модуля создать файл `CMakeLists.txt` и там описать все исходные файлы модуля
-- Регистрация модуля в `ModuleManager`. Зависит от категории
+- Определить функцию `register<Имя>(ModuleManager&)` и вызвать её из `registerBuiltinModules()`
 
 Подробности далее.
 
@@ -108,14 +108,16 @@ Cremniy предоставляет **тщательно отобранные** �
 Модули этого типа наследуются от класса `TabBase`
 > Расположение класса: `src/core/modules/TabBase.h`
 
-Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля с помощью функции `registerTab`:
+Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля функцией `registerModule<TabBase>`:
 
 ``` cpp
-static bool registered = []() {
-    ModuleManager::instance().registerTab("ExampleName", "ExampleGroup", []() { return new ExampleTab(); }, 200);
-    return true;
-}();
+void registerExampleTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "ExampleGroup",
+        [](const ModuleContext& ctx) { return new ExampleTab(ctx.settings); }, 200);
+}
 ```
+
+Функцию нужно вызвать из `registerBuiltinModules()` (`src/app/builtinmodules.cpp`) — статической регистрации больше нет. Модуль — отдельная библиотека `cremniy_module_<name>` (`add_library(... STATIC ...)`, `target_link_libraries(... PUBLIC cremniy_module_api)`), подключаемая к `cremniy_shell` в `src/CMakeLists.txt`. Подробнее: [architecture.md](../../../EN/architecture.md).
 
 Аргументы (по порядку):
 - `name` - название инструмента.
@@ -128,13 +130,13 @@ static bool registered = []() {
 Модули этого типа наследуются от класса `WindowBase`
 > Расположение класса: `src/core/modules/WindowBase.h`
 
-Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля с помощью функции `registerWindow`:
+Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля функцией `registerModule<WindowBase>`:
 
 ``` cpp
-static bool registered = []() {
-    ModuleManager::instance().registerWindow("ExampleName", "ExampleGroup", []() { return new ExampleWindow(); });
-    return true;
-}();
+void registerExampleWindow(ModuleManager& manager) {
+    manager.registerModule<WindowBase>(&displayName, "ExampleGroup",
+        [](const ModuleContext&) { return new ExampleWindow(); });
+}
 ```
 
 ### 2.4. Reference
@@ -142,13 +144,13 @@ static bool registered = []() {
 Модули этого типа наследуются от класса `ReferenceBase`
 > Расположение класса: `src/core/modules/ReferenceBase.h`
 
-Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля с помощью функции `registerReference`:
+Каждый модуль должен регистироваться в `ModuleManager` (`src/core/modules/ModuleManager.h`) в главном файле модуля функцией `registerModule<ReferenceBase>`:
 
 ``` cpp
-static bool registered = []() {
-ModuleManager::instance().registerReference("ExampleName", "ExampleGroup", []() { return new ExampleReference(); });
-    return true;
-}();
+void registerExampleReference(ModuleManager& manager) {
+    manager.registerModule<ReferenceBase>(&displayName, "ExampleGroup",
+        [](const ModuleContext&) { return new ExampleReference(); });
+}
 ```
 
 ## 3. API
@@ -168,11 +170,11 @@ ModuleManager::instance().registerReference("ExampleName", "ExampleGroup", []() 
 - `validate()` — проверить ввод, не изменяя настройки;
 - `apply()` — сохранить значения только после нажатия пользователем `OK`.
 
-Все изменения в `apply()` сохраняются через **настройки самого модуля** — ядро (`core/settings/AppSettings`) хранит только пары «ключ → значение» и НЕ знает ни одного ключа конкретного модуля. Поэтому:
+Все изменения в `apply()` сохраняются через **настройки самого модуля** — ядро (`AppSettings`, создаётся в `AppContext`) хранит только пары «ключ → значение» и НЕ знает ни одного ключа конкретного модуля. Поэтому:
 
 - каждый модуль сам объявляет свои ключи, их типы и значения по умолчанию (обычно в файле `<Module>Settings.h/.cpp` рядом со страницей);
 - модуль сам передаёт схему своих настроек фабрике (поле `moduleOptions` в описании страницы);
-- экспорт/импорт INI и уведомления об изменении (`SettingsNotifier::settingsChanged(key)`) обходят эту схему автоматически, и при добавлении нового модуля ядро менять не нужно.
+- экспорт/импорт INI и уведомления об изменении (сигнал `AppSettings::settingsChanged(key)`) обходят эту схему автоматически, и при добавлении нового модуля ядро менять не нужно.
 
 Пример файла настроек модуля (`ExampleSettings.h`):
 
@@ -180,10 +182,10 @@ ModuleManager::instance().registerReference("ExampleName", "ExampleGroup", []() 
 // Ключи, умолчания и типы принадлежат модулю, а не ядру.
 namespace ExampleSettings {
 QString keyWidth() { return "modules/example/width"; }
-inline int width() { return AppSettings::value(keyWidth(), 40).toInt(); }
-inline void setWidth(int v) {
-    AppSettings::setValue(keyWidth(), v);
-    emit SettingsNotifier::instance()->settingsChanged(keyWidth());
+inline int width(const AppSettings &s) { return s.value(keyWidth(), 40).toInt(); }
+inline void setWidth(AppSettings &s, int v) {
+    s.setValue(keyWidth(), v);
+    emit s.settingsChanged(keyWidth());
 }
 }
 ```
@@ -191,21 +193,25 @@ inline void setWidth(int v) {
 Пример регистрации страницы со схемой настроек:
 
 ```cpp
-SettingsRegistry::instance().registerModulePage("example", {
-    "modules.example",
-    "modules",
-    []() { return QObject::tr("Modules"); },
-    300,
-    []() { return QCoreApplication::translate("ExampleModule", "Example"); },
-    100,
-    {},
-    [](QWidget* parent) { return new ExampleSettingsPage(parent); },
-    // Схема настроек модуля: ключи + умолчания. Новый модуль попадает в
-    // экспорт/импорт INI автоматически, без правок core/settings.
-    {
-        { ExampleSettings::keyWidth(), 40 },
-    }
-});
+// Вызывается из registerBuiltinSettingsPages() (src/app/builtinsettings.cpp)
+void registerExampleSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerModulePage("example", {
+        "modules.example",
+        "modules",
+        []() { return QObject::tr("Modules"); },
+        300,
+        []() { return QCoreApplication::translate("ExampleModule", "Example"); },
+        100,
+        {},
+        [](AppSettings& settings, QWidget* parent) { return new ExampleSettingsPage(settings, parent); },
+        // Схема настроек модуля: ключи + умолчания. Новый модуль попадает в
+        // экспорт/импорт INI автоматически, без правок core/settings.
+        {
+            { ExampleSettings::keyWidth(), 40 },
+        }
+    });
+}
 ```
 
 `pageId` и владелец должны быть постоянными техническими идентификаторами и не должны зависеть от перевода. Все изменения следует сохранять в `apply()`: это гарантирует, что `Cancel` не изменит настройки пользователя.

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 find_package(Git QUIET)
 
@@ -24,89 +24,65 @@ project(cremniy VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
 
 message(STATUS "Cremniy version: ${PROJECT_VERSION}")
 
-include(CTest)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(Warnings)
+include(Sanitizers)
+include(Tooling)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include(CTest)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.8.2 REQUIRED COMPONENTS Core Widgets Gui Concurrent LinguistTools Test Svg Network)
+find_package(Qt6 6.8.2 REQUIRED COMPONENTS Core Widgets Gui Concurrent LinguistTools Svg Network)
+if(BUILD_TESTING)
+    find_package(Qt6 6.8.2 REQUIRED COMPONENTS Test)
+endif()
+# AUTOMOC and AUTOUIC for every target (qt_standard_project_setup) plus
+# AUTORCC for the .qrc files listed in target sources.
+qt_standard_project_setup()
+set(CMAKE_AUTORCC ON)
 
-# libgit2 ships a CMake package on some platforms and only a pkg-config file or
-# plain headers/libraries on others. Support all three layouts so developers do
-# not have to pass platform-specific paths to CMake.
-set(CREMNIY_LIBGIT2_TARGET "")
-set(CREMNIY_LIBGIT2_INCLUDE_DIRS "")
+include(Libgit2)
 
-get_filename_component(CREMNIY_COMPILER_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
-get_filename_component(CREMNIY_TOOLCHAIN_PREFIX "${CREMNIY_COMPILER_BIN_DIR}" DIRECTORY)
-set(CREMNIY_LIBGIT2_HINTS
-    "$ENV{LIBGIT2_ROOT}"
-    "$ENV{MINGW_PREFIX}"
-    "${CREMNIY_TOOLCHAIN_PREFIX}"
-    "$ENV{HOMEBREW_PREFIX}/opt/libgit2"
-    "/opt/homebrew/opt/libgit2"
-    "/usr/local/opt/libgit2"
+# Generated config.h (version, supported languages).
+set(APP_LANGUAGES en ru)
+list(JOIN APP_LANGUAGES ";" APP_LANGUAGES_STR)
+configure_file(
+    ${PROJECT_SOURCE_DIR}/config.h.in
+    ${PROJECT_BINARY_DIR}/generated/config.h
 )
-list(FILTER CREMNIY_LIBGIT2_HINTS EXCLUDE REGEX "^$")
+add_library(cremniy_config INTERFACE)
+target_include_directories(cremniy_config INTERFACE ${PROJECT_BINARY_DIR}/generated)
 
-find_package(PkgConfig QUIET)
-if(PkgConfig_FOUND)
-    pkg_check_modules(LIBGIT2 QUIET IMPORTED_TARGET libgit2)
-    if(TARGET PkgConfig::LIBGIT2)
-        set(CREMNIY_LIBGIT2_TARGET PkgConfig::LIBGIT2)
-    endif()
-endif()
+# - - Libraries - -
+add_subdirectory(utils)
+add_subdirectory(core/file)
+add_subdirectory(core/settings)
+add_subdirectory(core/git)
+add_subdirectory(core/modules)
+add_subdirectory(libs/CodeEditor)
+add_subdirectory(libs/HexEditor)
+add_subdirectory(libs/Terminal)
 
-if(NOT CREMNIY_LIBGIT2_TARGET)
-    find_package(libgit2 CONFIG QUIET HINTS ${CREMNIY_LIBGIT2_HINTS})
-    if(TARGET libgit2::libgit2package)
-        set(CREMNIY_LIBGIT2_TARGET libgit2::libgit2package)
-    elseif(TARGET libgit2::libgit2)
-        set(CREMNIY_LIBGIT2_TARGET libgit2::libgit2)
-    endif()
-endif()
+# - - Modules (one library each) - -
+add_subdirectory(Modules/References)
+add_subdirectory(Modules/Tabs)
+add_subdirectory(Modules/Windows)
 
-if(NOT CREMNIY_LIBGIT2_TARGET)
-    find_path(LIBGIT2_INCLUDE_DIR
-        NAMES git2.h
-        HINTS ${CREMNIY_LIBGIT2_HINTS}
-        PATH_SUFFIXES include
-    )
-    find_library(LIBGIT2_LIBRARY
-        NAMES git2 libgit2
-        HINTS ${CREMNIY_LIBGIT2_HINTS}
-        PATH_SUFFIXES lib lib64
-    )
-    if(NOT LIBGIT2_INCLUDE_DIR OR NOT LIBGIT2_LIBRARY)
-        message(FATAL_ERROR
-            "libgit2 was not found. Install the libgit2 development package "
-            "or set LIBGIT2_ROOT to its installation prefix."
-        )
-    endif()
-    set(CREMNIY_LIBGIT2_TARGET "${LIBGIT2_LIBRARY}")
-    set(CREMNIY_LIBGIT2_INCLUDE_DIRS "${LIBGIT2_INCLUDE_DIR}")
-endif()
+# - - Application shell: windows, panels, menus, composition root - -
+add_library(cremniy_shell STATIC
+    # Composition root
+    app/AppContext.cpp
+    app/AppContext.h
+    app/builtinmodules.cpp
+    app/builtinmodules.h
+    app/builtinsettings.cpp
+    app/builtinsettings.h
 
-if(NOT WIN32)
-    find_package(ZLIB REQUIRED)
-    find_package(OpenSSL REQUIRED)
-    find_library(PCRE_LIB NAMES pcre pcre2-8)
-    find_library(HTTP_PARSER_LIB NAMES http_parser REQUIRED)
-endif()
-
-set(PROJECT_SOURCES
-        main.cpp
-)
-
-qt_add_executable(${PROJECT_NAME}
-    MANUAL_FINALIZATION
-    main.cpp
-
-    # App
+    # Windows
     app/IDEWindow/idewindow.cpp
     app/IDEWindow/idewindow.h
     app/WelcomeWindow/WelcomeForm/welcome_form.cpp
@@ -119,179 +95,164 @@ qt_add_executable(${PROJECT_NAME}
     app/WelcomeWindow/ProjectCard/project_card.h
 
     # Dialogs
+    dialogs/configurebuild.cpp
+    dialogs/configurebuild.h
     dialogs/filecreatedialog.cpp
     dialogs/filecreatedialog.h
     dialogs/settingsdialog.cpp
     dialogs/settingsdialog.h
-    dialogs/pages/generalsettingspage.cpp
-    dialogs/pages/generalsettingspage.h
     dialogs/pages/filessettingspage.cpp
     dialogs/pages/filessettingspage.h
+    dialogs/pages/generalsettingspage.cpp
+    dialogs/pages/generalsettingspage.h
 
     # Widgets
+    widgets/buildTab/buildtab.cpp
+    widgets/buildTab/buildtab.h
     widgets/clickablelineedit.h
     widgets/filetab.cpp
     widgets/filetab.h
     widgets/filetreepanel.cpp
     widgets/filetreepanel.h
-    widgets/terminal/terminalwidget.cpp
-    widgets/terminal/terminalwidget.h
+    widgets/logView/logview.cpp
+    widgets/logView/logview.h
     widgets/terminal/terminalpanel.cpp
     widgets/terminal/terminalpanel.h
-    ui/FindPanel/findpanel.cpp
-    ui/FindPanel/findpanel.h
-
-    # Resources
-    resources/cremniy_res.qrc
-
-    # Utils
-    utils/utils.h
-    utils/utils.cpp
-        core/locale/LanguageManager.cpp
-        core/locale/LanguageManager.h
-
-    # Core
-    core/file/filecontext.h
-    core/file/FileDataBuffer.cpp
-    core/file/FileDataBuffer.h
-    core/file/filemanager.cpp
-    core/file/filemanager.h
-
-    core/project/projects_history_manager.cpp
-    core/project/projects_history_manager.h
-
-    core/FindEngine/findengine.cpp
-    core/FindEngine/findengine.h
-    core/FindEngine/findtypes.h
-
-    core/settings/settingspage.h
-
-    core/update/updatechecker.cpp
-    core/update/updatechecker.h
-
-    core/icons/iconprovider.cpp
-    core/icons/iconprovider.h
-
-    core/settings/exclusionfilterproxymodel.cpp
-    core/settings/exclusionfilterproxymodel.h
-
-    core/modules/ModuleManager.h
-    core/modules/ModuleManager.cpp
-    core/modules/TabBase.h
-    core/modules/WindowBase.h
-    core/modules/ReferenceBase.h
+    widgets/terminal/terminalwidget.cpp
+    widgets/terminal/terminalwidget.h
 
     # UI
     ui/FilesTabWidget/filestabwidget.cpp
     ui/FilesTabWidget/filestabwidget.h
+    ui/FindPanel/findpanel.cpp
+    ui/FindPanel/findpanel.h
     ui/ToolsTabWidget/toolstabwidget.cpp
     ui/ToolsTabWidget/toolstabwidget.h
 
-    # UI Menubar
-    ui/MenuBar/menubarbuilder.h ui/MenuBar/menubarbuilder.cpp
-    ui/MenuBar/menufactory.h ui/MenuBar/menufactory.cpp
+    # Menu bar
     ui/MenuBar/basemenu.h
-    dialogs/configurebuild.h dialogs/configurebuild.cpp
-    core/project/project_info_manager.h core/project/project_info_manager.cpp
+    ui/MenuBar/builtinmenus.cpp
+    ui/MenuBar/builtinmenus.h
+    ui/MenuBar/menubarbuilder.cpp
+    ui/MenuBar/menubarbuilder.h
+    ui/MenuBar/menufactory.cpp
+    ui/MenuBar/menufactory.h
+    ui/MenuBar/Menus/Build/buildmenu.cpp
+    ui/MenuBar/Menus/Build/buildmenu.h
+    ui/MenuBar/Menus/Edit/editmenu.cpp
+    ui/MenuBar/Menus/Edit/editmenu.h
+    ui/MenuBar/Menus/File/filemenu.cpp
+    ui/MenuBar/Menus/File/filemenu.h
+    ui/MenuBar/Menus/Git/gitmenu.cpp
+    ui/MenuBar/Menus/Git/gitmenu.h
+    ui/MenuBar/Menus/References/referencesmenu.cpp
+    ui/MenuBar/Menus/References/referencesmenu.h
+    ui/MenuBar/Menus/Tools/toolsmenu.cpp
+    ui/MenuBar/Menus/Tools/toolsmenu.h
+    ui/MenuBar/Menus/View/viewmenu.cpp
+    ui/MenuBar/Menus/View/viewmenu.h
 
+    # Core services used by the shell
+    core/FindEngine/findengine.cpp
+    core/FindEngine/findengine.h
+    core/FindEngine/findtypes.h
     core/buildman/buildmanager.cpp
-    core/buildman/buildmanager.cpp
-    widgets/logView/logview.h widgets/logView/logview.cpp
-
-
-    widgets/buildTab/buildtab.cpp widgets/buildTab/buildtab.h
-
+    core/buildman/buildmanager.h
+    core/icons/iconprovider.cpp
+    core/icons/iconprovider.h
+    core/locale/LanguageManager.cpp
+    core/locale/LanguageManager.h
+    core/project/project_info_manager.cpp
+    core/project/project_info_manager.h
+    core/project/projects_history_manager.cpp
+    core/project/projects_history_manager.h
+    core/settings/exclusionfilterproxymodel.cpp
+    core/settings/exclusionfilterproxymodel.h
+    core/update/updatechecker.cpp
+    core/update/updatechecker.h
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/widgets
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/file
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/git
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/project
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/settings
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils
-    ${CMAKE_CURRENT_SOURCE_DIR}/ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/ToolsTabWidget
-    ${CMAKE_CURRENT_SOURCE_DIR}/FilesTabWidget
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/WelcomeWindow/WelcomeForm
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/WelcomeWindow/RecentProjectsPage
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/WelcomeWindow/CreateProjectPage
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/WelcomeWindow/ProjectCard
+target_include_directories(cremniy_shell PUBLIC
+    ${PROJECT_SOURCE_DIR}
 )
 
-file(GLOB_RECURSE PHOICONS_FILES
+target_link_libraries(cremniy_shell
+    PUBLIC
+        cremniy_config
+        cremniy_file_core
+        cremniy_settings_core
+        cremniy_git_core
+        cremniy_module_api
+        CodeEditor
+        cremniy_terminal_core
+        cremniy_module_ascii_chars
+        cremniy_module_keyboard_scancodes
+        cremniy_module_binary
+        cremniy_module_code_editor
+        cremniy_module_disassembler
+        cremniy_module_stm32_pinout
+        cremniy_module_data_converter
+        cremniy_module_reverse_calculator
+        cremniy_module_shellcode_generator
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::Gui
+        Qt6::Concurrent
+        Qt6::Svg
+        Qt6::Network
+    PRIVATE
+        cremniy_warnings
+)
+
+# Unity builds are limited to first-party targets: third-party code (libvterm,
+# QCodeEditor) defines conflicting file-local symbols.
+if(CREMNIY_UNITY_BUILD)
+    set_target_properties(cremniy_shell PROPERTIES UNITY_BUILD ON)
+    # These files define identically named file-local helpers.
+    set_source_files_properties(
+        dialogs/pages/filessettingspage.cpp
+        dialogs/pages/generalsettingspage.cpp
+        PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+endif()
+
+if(CREMNIY_ENABLE_PCH)
+    target_precompile_headers(cremniy_shell PRIVATE
+        <QtCore>
+        <QtGui>
+        <QtWidgets>
+    )
+endif()
+
+if(BUILD_TESTING)
+    qt_add_executable(appcontexttest app/tests/appcontexttest.cpp)
+    target_link_libraries(appcontexttest PRIVATE cremniy_shell Qt6::Test)
+    add_test(NAME appcontexttest COMMAND appcontexttest)
+    set_tests_properties(appcontexttest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
+# - - Executable - -
+qt_add_executable(${PROJECT_NAME}
+    MANUAL_FINALIZATION
+    main.cpp
+    resources/cremniy_res.qrc
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_shell cremniy_warnings)
+
+# Icon theme: resource files are enumerated at configure time (assets only,
+# never sources); CONFIGURE_DEPENDS re-runs the glob when files are added.
+file(GLOB_RECURSE PHOICONS_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/phoicons/*"
 )
-
 qt_add_resources(${PROJECT_NAME} "phoicons"
     PREFIX "/icons"
     BASE "resources/icons"
     FILES ${PHOICONS_FILES}
 )
 
-# - - Libs - -
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/settings/ ${CMAKE_BINARY_DIR}/core/settings/)
-target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_settings_core)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/git/ ${CMAKE_BINARY_DIR}/core/git/)
-target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_git_core)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/CodeEditor/ ${CMAKE_BINARY_DIR}/libs/CodeEditor/)
-target_link_libraries(${PROJECT_NAME} PRIVATE CodeEditor)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/HexEditor/ ${CMAKE_BINARY_DIR}/libs/HexEditor/)
-target_link_libraries(${PROJECT_NAME} PRIVATE HexEditor)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/Terminal/ ${CMAKE_BINARY_DIR}/libs/Terminal/)
-target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_terminal_core)
-
-# - - Modules - -
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Modules/References/)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Modules/Tabs/)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Modules/Windows/)
-
-# - - Menus - -
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/MenuBar/Menus/)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    Qt6::Core
-    Qt6::Widgets
-    Qt6::Gui
-    Qt6::Concurrent
-    Qt6::Svg
-    Qt6::Network
-)
-
-if(NOT WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${HTTP_PARSER_LIB}
-        ${PCRE_LIB}
-        OpenSSL::SSL
-        OpenSSL::Crypto
-        ZLIB::ZLIB
-    )
-endif()
-
-set(APP_LANGUAGES
-        en
-        ru
-)
-
-list(JOIN APP_LANGUAGES ";" APP_LANGUAGES_STR)
-
-configure_file(
-        ${CMAKE_SOURCE_DIR}/config.h.in
-        ${CMAKE_BINARY_DIR}/config.h
-)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_BINARY_DIR}
-)
-
+# - - Translations - -
 set(TS_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/locale/translations/app_ru.ts
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/locale/translations/qtbase_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/locale/translations/app_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/locale/translations/qtbase_ru.ts
 )
 
 qt6_add_translation(QM_FILES ${TS_FILES})
@@ -299,39 +260,36 @@ qt6_add_translation(QM_FILES ${TS_FILES})
 add_custom_target(translations ALL DEPENDS ${QM_FILES})
 add_dependencies(${PROJECT_NAME} translations)
 
-if (APPLE)
-    set(TRANSLATIONS_DIR
-            "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources/translations"
-    )
-else ()
-    set(TRANSLATIONS_DIR
-            "${CMAKE_BINARY_DIR}/Resources/translations"
-    )
-endif ()
+if(APPLE)
+    set(TRANSLATIONS_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources/translations")
+else()
+    set(TRANSLATIONS_DIR "${CMAKE_BINARY_DIR}/Resources/translations")
+endif()
 
 file(MAKE_DIRECTORY ${TRANSLATIONS_DIR})
 
 foreach(QM_FILE ${QM_FILES})
     get_filename_component(QM_FILENAME ${QM_FILE} NAME)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${QM_FILE}"
             "${TRANSLATIONS_DIR}/${QM_FILENAME}"
     )
 endforeach()
 
+# - - Platform packaging - -
+option(CREMNIY_DEPLOY_QT_POST_BUILD
+    "Run windeployqt after building so the build tree is runnable (Windows)" ON)
 find_program(WINDEPLOYQT_EXECUTABLE windeployqt)
 
-if(WIN32 AND WINDEPLOYQT_EXECUTABLE)
+if(WIN32 AND WINDEPLOYQT_EXECUTABLE AND CREMNIY_DEPLOY_QT_POST_BUILD)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${WINDEPLOYQT_EXECUTABLE}
-                $<TARGET_FILE:${PROJECT_NAME}>
+        COMMAND ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:${PROJECT_NAME}>
         COMMENT "Deploying Qt dependencies with windeployqt"
     )
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -347,7 +305,6 @@ if(APPLE)
     target_sources(${PROJECT_NAME} PRIVATE ${ICNS_FILE})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE cremniy.icns
         MACOSX_BUNDLE_BUNDLE_NAME "Cremniy"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.mironov.cremniy"
@@ -362,11 +319,23 @@ if(APPLE)
     )
 endif()
 
+# - - Install - -
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+# Bundle Qt for self-contained Windows / macOS installs. Linux packages
+# (see rpm/cremniy.spec) rely on the distribution's Qt.
+if((WIN32 OR APPLE) AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
+    qt_generate_deploy_app_script(
+        TARGET ${PROJECT_NAME}
+        OUTPUT_SCRIPT CREMNIY_DEPLOY_SCRIPT
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT ${CREMNIY_DEPLOY_SCRIPT})
+endif()
 
 qt_finalize_executable(${PROJECT_NAME})

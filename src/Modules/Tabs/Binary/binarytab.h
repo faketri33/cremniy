@@ -48,9 +48,9 @@ public slots:
 
     void pageModifyDataSlot();
 
-    void setWordWrapSlot(bool checked) override {};
-    void setTabReplaceSlot(bool checked) override {};
-    void setTabWidthSlot(int width) override {};
+    void setWordWrapSlot(bool /*checked*/) override {}
+    void setTabReplaceSlot(bool /*checked*/) override {}
+    void setTabWidthSlot(int /*width*/) override {}
 
 };
 

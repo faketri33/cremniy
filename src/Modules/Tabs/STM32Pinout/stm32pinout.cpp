@@ -1,5 +1,6 @@
 #include "stm32pinout.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QTreeWidgetItem>
@@ -229,10 +230,9 @@ static QString displayName() {
     return QCoreApplication::translate("STM32PinoutTab", "STM32 Pinout");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "", []() { return new STM32PinoutTab(); }, 200);
-    return true;
-}();
+void registerSTM32PinoutTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "", [](const ModuleContext&) { return new STM32PinoutTab(); }, 200);
+}
 
 STM32PinoutTab::STM32PinoutTab(QWidget* parent)
     : TabBase{parent}
@@ -337,8 +337,7 @@ void ChipView::setModifiedPins(const QSet<QString>& pins)
 }
 void STM32PinoutTab::setFile(QString filepath)
 {
-    delete m_fileContext;
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 
     if (!filepath.endsWith(".ioc", Qt::CaseInsensitive)) {
         m_microcontrollerInfo->setText("Not a .ioc file.");
@@ -589,7 +588,7 @@ QByteArray STM32PinoutTab::buildIocBytes() const
     return out;
 }
 
-QStringList STM32PinoutTab::getAllPinsForPackage(const QString& mcuName, const QString& package)
+QStringList STM32PinoutTab::getAllPinsForPackage(const QString& /*mcuName*/, const QString& package)
 {
     QStringList pins;
     QString pkg = package.toUpper();

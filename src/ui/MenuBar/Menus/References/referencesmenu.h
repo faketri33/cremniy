@@ -3,12 +3,14 @@
 
 #include "ui/MenuBar/basemenu.h"
 
+class AppContext;
+
 class ReferencesMenu : public BaseMenu
 {
     Q_OBJECT
 
 public:
-    ReferencesMenu();
+    explicit ReferencesMenu(AppContext& context);
 
 };
 

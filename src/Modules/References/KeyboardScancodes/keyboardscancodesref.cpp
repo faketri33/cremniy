@@ -1,6 +1,7 @@
 #include "keyboardscancodesref.h"
 #include "keyboardscancodevizwidget.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 #include <QApplication>
 #include <QGroupBox>
 #include <QGridLayout>
@@ -17,10 +18,9 @@ static QString displayName() {
     return QCoreApplication::translate("KeyboardScancodesRef", "Keyboard Scancodes");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<ReferenceBase>(&displayName, "", []() { return new KeyboardScancodesRef(); });
-    return true;
-}();
+void registerKeyboardScancodesRef(ModuleManager& manager) {
+    manager.registerModule<ReferenceBase>(&displayName, "", [](const ModuleContext&) { return new KeyboardScancodesRef(); });
+}
 
 struct RefRow {
     const char *name;
@@ -132,7 +132,7 @@ static const RefRow kRefRows[] = {
     {"Pause", "E1 1D 45 …", QT_TRANSLATE_NOOP("KeyboardScanCodesRef","Long pause make sequence; break differs")},
 };
 
-KeyboardScancodesRef::KeyboardScancodesRef(QWidget *parent)
+KeyboardScancodesRef::KeyboardScancodesRef(QWidget * /*parent*/)
 {
     initWindow();
     initWidgets();
