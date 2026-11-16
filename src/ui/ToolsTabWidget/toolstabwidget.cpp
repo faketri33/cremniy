@@ -137,10 +137,10 @@ void ToolsTabWidget::createAlwaysTabs()
 {
 
     QString m_alwaysVisibleGroup = "always";
-    QList<QString> groups = ModuleManager::instance().getGroups<TabBase>();
+    QList<QString> groups = m_context.moduleManager().getGroups<TabBase>();
     if (!groups.contains(m_alwaysVisibleGroup)) return;
 
-    const QVector<ModuleDescription<TabBase>>& tabsDesc = ModuleManager::instance().getByGroup<TabBase>(m_alwaysVisibleGroup);
+    const QVector<ModuleDescription<TabBase>>& tabsDesc = m_context.moduleManager().getByGroup<TabBase>(m_alwaysVisibleGroup);
 
     for (const ModuleDescription<TabBase>& desc: tabsDesc){
         this->createTab(desc, true, false);
@@ -150,7 +150,7 @@ void ToolsTabWidget::createAlwaysTabs()
 
 void ToolsTabWidget::createTab(const ModuleDescription<TabBase>& desc, bool isAlways, bool tabClosable){
 
-    TabBase* tab = desc.creator();
+    TabBase* tab = desc.creator(m_context);
     if (!tab) return;
 
     connectGitIntegration(tab);

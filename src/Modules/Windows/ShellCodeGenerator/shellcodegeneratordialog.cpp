@@ -22,11 +22,9 @@ static QString displayName() {
     return QCoreApplication::translate("ShellCodeGenerator", "Shell code");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<WindowBase>(
-        &displayName, "", []() { return new ShellcodeGeneratorDialog(); });
-    return true;
-}();
+void registerShellcodeGeneratorDialog(ModuleManager& manager) {
+    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new ShellcodeGeneratorDialog(); });
+}
 
 struct ArchEntry {
     const char *label;

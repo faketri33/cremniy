@@ -15,7 +15,7 @@ void registerBuiltinMenus(MenuFactory& factory)
     factory.registerMenu("2", [](AppContext&) { return new EditMenu(); });
     factory.registerMenu("3", [](AppContext&) { return new ViewMenu(); });
     factory.registerMenu("4", [](AppContext&) { return new BuildMenu(); });
-    factory.registerMenu("5", [](AppContext&) { return new ToolsMenu(); });
-    factory.registerMenu("6", [](AppContext&) { return new ReferencesMenu(); });
+    factory.registerMenu("5", [](AppContext& context) { return new ToolsMenu(context); });
+    factory.registerMenu("6", [](AppContext& context) { return new ReferencesMenu(context); });
     factory.registerMenu("7", [](AppContext&) { return new GitMenu(); });
 }

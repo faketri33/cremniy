@@ -20,11 +20,9 @@ static QString displayName() {
     return QCoreApplication::translate("ReverseCalculator", "Reverse Calculator");
 };
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<WindowBase>(
-    &displayName, "", []() { return new ReverseCalculatorDialog(); });
-    return true;
-}();
+void registerReverseCalculatorDialog(ModuleManager& manager) {
+    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new ReverseCalculatorDialog(); });
+}
 
 namespace {
 QFrame *makeSeparator(QWidget *parent) {

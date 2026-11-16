@@ -17,10 +17,9 @@ static QString displayName() {
     return QCoreApplication::translate("KeyboardScancodesRef", "Keyboard Scancodes");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<ReferenceBase>(&displayName, "", []() { return new KeyboardScancodesRef(); });
-    return true;
-}();
+void registerKeyboardScancodesRef(ModuleManager& manager) {
+    manager.registerModule<ReferenceBase>(&displayName, "", [](AppContext&) { return new KeyboardScancodesRef(); });
+}
 
 struct RefRow {
     const char *name;

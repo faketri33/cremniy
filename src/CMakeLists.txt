@@ -115,6 +115,7 @@ qt_add_executable(${PROJECT_NAME}
     # App
     app/AppContext.h
     app/AppContext.cpp
+    app/builtinmodules.h app/builtinmodules.cpp
     app/IDEWindow/idewindow.cpp
     app/IDEWindow/idewindow.h
     app/WelcomeWindow/WelcomeForm/welcome_form.cpp
@@ -184,7 +185,6 @@ qt_add_executable(${PROJECT_NAME}
     core/settings/exclusionfilterproxymodel.h
 
     core/modules/ModuleManager.h
-    core/modules/ModuleManager.cpp
     core/modules/TabBase.h
     core/modules/WindowBase.h
     core/modules/ReferenceBase.h
@@ -240,6 +240,9 @@ qt_add_resources(${PROJECT_NAME} "phoicons"
 )
 
 # - - Libs - -
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/modules/ ${CMAKE_BINARY_DIR}/core/modules/)
+target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_module_manager)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/settings/ ${CMAKE_BINARY_DIR}/core/settings/)
 target_link_libraries(${PROJECT_NAME} PRIVATE cremniy_settings_core)
 

@@ -15,11 +15,9 @@ static QString displayName() {
     return QCoreApplication::translate("DataConverterDialog","Data Converter");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<WindowBase>(
-    &displayName, "", []() { return new DataConverterDialog(); });
-    return true;
-}();
+void registerDataConverterDialog(ModuleManager& manager) {
+    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new DataConverterDialog(); });
+}
 
 struct UnitInfo {
 	const char* label;      // displayed in the form label

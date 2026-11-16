@@ -15,10 +15,9 @@ static QString displayName() {
     return QCoreApplication::translate("AsciiCharsRef","ASCII / Unicode Characters");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<ReferenceBase>(&displayName, "", []() { return new AsciiCharsRef(); });
-    return true;
-}();
+void registerAsciiCharsRef(ModuleManager& manager) {
+    manager.registerModule<ReferenceBase>(&displayName, "", [](AppContext&) { return new AsciiCharsRef(); });
+}
 
 AsciiCharsRef::AsciiCharsRef()
 {

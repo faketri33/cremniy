@@ -13,10 +13,9 @@ static QString displayName() {
     return QCoreApplication::translate("BinaryTab", "Binary");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "always", []() { return new BinaryTab(); }, 200);
-    return true;
-}();
+void registerBinaryTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "always", [](AppContext&) { return new BinaryTab(); }, 200);
+}
 
 namespace {
 void syncCurrentFormatPage(QStackedWidget* pageView, FileDataBuffer* dataBuffer)

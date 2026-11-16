@@ -3,6 +3,7 @@
 
 #include "core/git/gitblameservice.h"
 #include "core/locale/LanguageManager.h"
+#include "core/modules/ModuleManager.h"
 #include "ui/MenuBar/menufactory.h"
 
 /**
@@ -20,12 +21,14 @@ public:
     AppContext(const AppContext &) = delete;
     AppContext &operator=(const AppContext &) = delete;
 
+    ModuleManager &moduleManager() { return m_moduleManager; }
     MenuFactory &menuFactory() { return m_menuFactory; }
     LanguageManager &languageManager() { return m_languageManager; }
     GitBlameService &gitBlameService() { return m_gitBlameService; }
 
 private:
     LanguageManager m_languageManager;
+    ModuleManager m_moduleManager;
     MenuFactory m_menuFactory;
     GitBlameService m_gitBlameService;
 };

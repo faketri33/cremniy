@@ -6,6 +6,7 @@
 
 #include <QList>
 
+class AppContext;
 class IDEWindow;
 class QAction;
 
@@ -15,7 +16,7 @@ class ToolsMenu : public BaseMenu
 private:
 
 public:
-    ToolsMenu();
+    explicit ToolsMenu(AppContext& context);
     void setupConnections(IDEWindow* ideWind);
 
 signals:

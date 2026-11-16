@@ -36,10 +36,9 @@ static QString displayName() {
     return QCoreApplication::translate("DisassemblerTab", "Disassembler");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "", []() { return new DisassemblerTab(); }, 100);
-    return true;
-}();
+void registerDisassemblerTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "", [](AppContext&) { return new DisassemblerTab(); }, 100);
+}
 
 static QString normalizeBytes(const QString &bytes)
 {

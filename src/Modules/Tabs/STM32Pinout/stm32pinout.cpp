@@ -229,10 +229,9 @@ static QString displayName() {
     return QCoreApplication::translate("STM32PinoutTab", "STM32 Pinout");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "", []() { return new STM32PinoutTab(); }, 200);
-    return true;
-}();
+void registerSTM32PinoutTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "", [](AppContext&) { return new STM32PinoutTab(); }, 200);
+}
 
 STM32PinoutTab::STM32PinoutTab(QWidget* parent)
     : TabBase{parent}

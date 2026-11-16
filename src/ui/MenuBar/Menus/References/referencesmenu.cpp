@@ -1,12 +1,13 @@
 #include "referencesmenu.h"
+#include "app/AppContext.h"
 #include "core/modules/ModuleManager.h"
 #include "core/modules/ReferenceBase.h"
 
-ReferencesMenu::ReferencesMenu() : BaseMenu(tr("References")) {
-    QList<QString> groups = ModuleManager::instance().getGroups<ReferenceBase>();
+ReferencesMenu::ReferencesMenu(AppContext& context) : BaseMenu(tr("References")) {
+    QList<QString> groups = context.moduleManager().getGroups<ReferenceBase>();
     for (QString group : groups){
 
-        const QVector<ModuleDescription<ReferenceBase>>& descRefModules = ModuleManager::instance().getByGroup<ReferenceBase>(group);
+        const QVector<ModuleDescription<ReferenceBase>>& descRefModules = context.moduleManager().getByGroup<ReferenceBase>(group);
 
         QMenu* groupMenu;
         if (group == "") groupMenu = this;
@@ -15,8 +16,8 @@ ReferencesMenu::ReferencesMenu() : BaseMenu(tr("References")) {
         for (const ModuleDescription<ReferenceBase>& desc : descRefModules){
             QAction* newAction = new QAction(desc.name(), this);
             groupMenu->addAction(newAction);
-            connect(newAction, &QAction::triggered, this, [desc](){
-                auto* module = desc.creator();
+            connect(newAction, &QAction::triggered, this, [desc, &context](){
+                auto* module = desc.creator(context);
                 if (!module)
                     return;
                 module->setAttribute(Qt::WA_DeleteOnClose);

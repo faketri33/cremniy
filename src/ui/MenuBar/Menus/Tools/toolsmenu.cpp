@@ -1,22 +1,23 @@
 #include "toolsmenu.h"
+#include "app/AppContext.h"
 #include "core/modules/ModuleManager.h"
 #include <QKeySequence>
 #include <QAction>
 
 #include "core/modules/WindowBase.h"
 
-ToolsMenu::ToolsMenu() : BaseMenu(tr("Tools")) {
+ToolsMenu::ToolsMenu(AppContext& context) : BaseMenu(tr("Tools")) {
     QMenu* tabModulesMenu = new QMenu(tr("Tabs"));
     QMenu* windowModulesMenu = new QMenu(tr("Windows"));
 
     // Modules: Tabs
-    const QList<QString>& tabGroups = ModuleManager::instance().getGroups<TabBase>();
+    const QList<QString>& tabGroups = context.moduleManager().getGroups<TabBase>();
 
     for (const QString& group : tabGroups){
 
         if (group == "always") continue;
 
-        const QVector<ModuleDescription<TabBase>>& creatorTabModules = ModuleManager::instance().getByGroup<TabBase>(group);
+        const QVector<ModuleDescription<TabBase>>& creatorTabModules = context.moduleManager().getByGroup<TabBase>(group);
 
         QMenu* groupMenu;
         if (group == "") groupMenu = tabModulesMenu;
@@ -39,11 +40,11 @@ ToolsMenu::ToolsMenu() : BaseMenu(tr("Tools")) {
 
 
     // Nodules: Windows
-    const QList<QString>& windowGroups = ModuleManager::instance().getGroups<WindowBase>();
+    const QList<QString>& windowGroups = context.moduleManager().getGroups<WindowBase>();
 
     for (const QString& group : windowGroups){
 
-        const QVector<ModuleDescription<WindowBase>>& descWindowModules = ModuleManager::instance().getByGroup<WindowBase>(group);
+        const QVector<ModuleDescription<WindowBase>>& descWindowModules = context.moduleManager().getByGroup<WindowBase>(group);
 
         QMenu* groupMenu;
         if (group == "") groupMenu = windowModulesMenu;
@@ -54,8 +55,8 @@ ToolsMenu::ToolsMenu() : BaseMenu(tr("Tools")) {
             QAction* newAction = new QAction(desc.name(), this);
             groupMenu->addAction(newAction);
 
-            connect(newAction, &QAction::triggered, this, [this, desc](){
-                auto* module = desc.creator();
+            connect(newAction, &QAction::triggered, this, [this, desc, &context](){
+                auto* module = desc.creator(context);
                 module->setAttribute(Qt::WA_DeleteOnClose);
                 module->showWindow();
             });

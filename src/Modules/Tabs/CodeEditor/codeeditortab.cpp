@@ -19,10 +19,9 @@ static QString displayName() {
     return QCoreApplication::translate("CodeEditorTab", "Code");
 }
 
-static bool registered = []() {
-    ModuleManager::instance().registerModule<TabBase>(&displayName, "always", []() { return new CodeEditorTab(); }, 100);
-    return true;
-}();
+void registerCodeEditorTab(ModuleManager& manager) {
+    manager.registerModule<TabBase>(&displayName, "always", [](AppContext&) { return new CodeEditorTab(); }, 100);
+}
 
 CodeEditorTab::CodeEditorTab(QWidget* parent)
     : TabBase(parent)
