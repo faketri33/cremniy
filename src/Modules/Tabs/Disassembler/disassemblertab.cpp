@@ -239,10 +239,10 @@ DisassemblerTab::DisassemblerTab(AppSettings &settings, QWidget *parent)
     m_worker = new DisassemblerWorker();
     m_worker->moveToThread(m_thread);
 
-    connect(m_thread, &QThread::finished, this, [this]() {
-        m_worker->deleteLater();
-        m_worker = nullptr;
-    });
+    // The worker lives in m_thread; delete it from there when the thread ends
+    // (also when the tab is destroyed and no event loop of the tab remains).
+    connect(m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
+    connect(m_thread, &QThread::finished, this, [this]() { m_worker = nullptr; });
     connect(this,  &DisassemblerTab::requestDisassembly,
             m_worker, &DisassemblerWorker::disassemble, Qt::QueuedConnection);
     connect(m_worker, &DisassemblerWorker::sectionFound,
