@@ -17,7 +17,7 @@ ReferencesMenu::ReferencesMenu(AppContext& context) : BaseMenu(tr("References"))
             QAction* newAction = new QAction(desc.name(), this);
             groupMenu->addAction(newAction);
             connect(newAction, &QAction::triggered, this, [desc, &context](){
-                auto* module = desc.creator(context);
+                auto* module = desc.creator(context.moduleContext());
                 if (!module)
                     return;
                 module->setAttribute(Qt::WA_DeleteOnClose);

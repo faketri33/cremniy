@@ -1,5 +1,6 @@
 #include "stm32pinout.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QTreeWidgetItem>
@@ -230,7 +231,7 @@ static QString displayName() {
 }
 
 void registerSTM32PinoutTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "", [](AppContext&) { return new STM32PinoutTab(); }, 200);
+    manager.registerModule<TabBase>(&displayName, "", [](const ModuleContext&) { return new STM32PinoutTab(); }, 200);
 }
 
 STM32PinoutTab::STM32PinoutTab(QWidget* parent)

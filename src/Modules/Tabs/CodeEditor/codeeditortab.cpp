@@ -1,5 +1,5 @@
 #include "codeeditortab.h"
-#include "app/AppContext.h"
+#include "core/modules/ModuleContext.h"
 #include "utils/utils.h"
 #include "libs/CodeEditor/include/widgets/CustomCodeEditor.h"
 #include "libs/CodeEditor/include/languages/LanguageRegistry.h"
@@ -21,7 +21,7 @@ static QString displayName() {
 }
 
 void registerCodeEditorTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "always", [](AppContext& context) { return new CodeEditorTab(context.appSettings(), context.languageRegistry()); }, 100);
+    manager.registerModule<TabBase>(&displayName, "always", [](const ModuleContext& context) { return new CodeEditorTab(context.settings, context.languages); }, 100);
 }
 
 CodeEditorTab::CodeEditorTab(AppSettings& settings, const LanguageRegistry& languageRegistry, QWidget* parent)

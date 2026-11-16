@@ -150,7 +150,7 @@ void ToolsTabWidget::createAlwaysTabs()
 
 void ToolsTabWidget::createTab(const ModuleDescription<TabBase>& desc, bool isAlways, bool tabClosable){
 
-    TabBase* tab = desc.creator(m_context);
+    TabBase* tab = desc.creator(m_context.moduleContext());
     if (!tab) return;
 
     connectGitIntegration(tab);

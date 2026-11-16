@@ -12,11 +12,11 @@
 #include <QString>
 #include <QVector>
 
-class AppContext;
+struct ModuleContext;
 
 template<typename T>
 struct ModuleDescription {
-    std::function<T*(AppContext&)> creator;
+    std::function<T*(const ModuleContext&)> creator;
     std::function<QString()> name;
     int position = 0;
 };
@@ -31,7 +31,7 @@ class ModuleManager {
 
 public:
     template<typename T>
-    void registerModule(std::function<QString()> name, const QString &group, std::function<T*(AppContext&)> creator, int position = 0) {
+    void registerModule(std::function<QString()> name, const QString &group, std::function<T*(const ModuleContext&)> creator, int position = 0) {
         ModuleDescription<T> desc{
             std::move(creator),
             std::move(name),
@@ -41,7 +41,7 @@ public:
     }
 
     template <typename T>
-    T* create(const QString& group, const int& index, AppContext& context) const {
+    T* create(const QString& group, const int& index, const ModuleContext& context) const {
         const auto& storage = getStorageConst<T>();
         auto it = storage.find(group.trimmed());
         if (it == storage.end()) return nullptr;

@@ -8,13 +8,14 @@
 #include "formatpagefactory.h"
 #include "formatpage.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("BinaryTab", "Binary");
 }
 
 void registerBinaryTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "always", [](AppContext&) { return new BinaryTab(); }, 200);
+    manager.registerModule<TabBase>(&displayName, "always", [](const ModuleContext&) { return new BinaryTab(); }, 200);
 }
 
 namespace {

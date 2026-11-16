@@ -15,13 +15,14 @@
 #include <QString>
 
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("ReverseCalculator", "Reverse Calculator");
 };
 
 void registerReverseCalculatorDialog(ModuleManager& manager) {
-    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new ReverseCalculatorDialog(); });
+    manager.registerModule<WindowBase>(&displayName, "", [](const ModuleContext&) { return new ReverseCalculatorDialog(); });
 }
 
 namespace {

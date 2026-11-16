@@ -1,6 +1,7 @@
 #include "keyboardscancodesref.h"
 #include "keyboardscancodevizwidget.h"
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 #include <QApplication>
 #include <QGroupBox>
 #include <QGridLayout>
@@ -18,7 +19,7 @@ static QString displayName() {
 }
 
 void registerKeyboardScancodesRef(ModuleManager& manager) {
-    manager.registerModule<ReferenceBase>(&displayName, "", [](AppContext&) { return new KeyboardScancodesRef(); });
+    manager.registerModule<ReferenceBase>(&displayName, "", [](const ModuleContext&) { return new KeyboardScancodesRef(); });
 }
 
 struct RefRow {

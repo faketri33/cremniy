@@ -3,6 +3,7 @@
 
 #include "core/git/gitblameservice.h"
 #include "core/locale/LanguageManager.h"
+#include "core/modules/ModuleContext.h"
 #include "core/modules/ModuleManager.h"
 #include "core/settings/appsettings.h"
 #include "libs/CodeEditor/include/languages/LanguageRegistry.h"
@@ -27,6 +28,7 @@ public:
     LanguageRegistry &languageRegistry() { return m_languageRegistry; }
     AppSettings &appSettings() { return m_appSettings; }
     SettingsRegistry &settingsRegistry() { return m_settingsRegistry; }
+    const ModuleContext &moduleContext() const { return m_moduleContext; }
     ModuleManager &moduleManager() { return m_moduleManager; }
     MenuFactory &menuFactory() { return m_menuFactory; }
     LanguageManager &languageManager() { return m_languageManager; }
@@ -37,6 +39,7 @@ private:
     LanguageRegistry m_languageRegistry;
     SettingsRegistry m_settingsRegistry;
     AppSettings m_appSettings{m_settingsRegistry};
+    ModuleContext m_moduleContext{m_appSettings, m_languageRegistry};
     ModuleManager m_moduleManager;
     MenuFactory m_menuFactory;
     GitBlameService m_gitBlameService;

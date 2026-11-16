@@ -1,5 +1,5 @@
 #include "shellcodegeneratordialog.h"
-#include "app/AppContext.h"
+#include "core/modules/ModuleContext.h"
 #include "shellcodeengine.h"
 
 #include "core/file/FileDataBuffer.h"
@@ -24,7 +24,7 @@ static QString displayName() {
 }
 
 void registerShellcodeGeneratorDialog(ModuleManager& manager) {
-    manager.registerModule<WindowBase>(&displayName, "", [](AppContext& context) { return new ShellcodeGeneratorDialog(context.languageRegistry()); });
+    manager.registerModule<WindowBase>(&displayName, "", [](const ModuleContext& context) { return new ShellcodeGeneratorDialog(context.languages); });
 }
 
 struct ArchEntry {

@@ -56,7 +56,7 @@ ToolsMenu::ToolsMenu(AppContext& context) : BaseMenu(tr("Tools")) {
             groupMenu->addAction(newAction);
 
             connect(newAction, &QAction::triggered, this, [this, desc, &context](){
-                auto* module = desc.creator(context);
+                auto* module = desc.creator(context.moduleContext());
                 module->setAttribute(Qt::WA_DeleteOnClose);
                 module->showWindow();
             });

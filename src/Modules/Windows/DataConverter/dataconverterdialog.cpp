@@ -10,13 +10,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("DataConverterDialog","Data Converter");
 }
 
 void registerDataConverterDialog(ModuleManager& manager) {
-    manager.registerModule<WindowBase>(&displayName, "", [](AppContext&) { return new DataConverterDialog(); });
+    manager.registerModule<WindowBase>(&displayName, "", [](const ModuleContext&) { return new DataConverterDialog(); });
 }
 
 struct UnitInfo {

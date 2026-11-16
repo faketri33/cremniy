@@ -7,7 +7,7 @@
 // creators can return something).
 struct FakeTab { int id; };
 struct FakeWindow { int id; };
-class AppContext {};
+struct ModuleContext {};
 
 class ModuleManagerTest : public QObject
 {
@@ -18,9 +18,9 @@ private slots:
     {
         ModuleManager m;
         m.registerModule<FakeTab>([] { return QStringLiteral("a"); }, "g",
-                                  [](AppContext&) { return new FakeTab{1}; }, 10);
+                                  [](const ModuleContext&) { return new FakeTab{1}; }, 10);
         m.registerModule<FakeTab>([] { return QStringLiteral("b"); }, "g",
-                                  [](AppContext&) { return new FakeTab{2}; }, 20);
+                                  [](const ModuleContext&) { return new FakeTab{2}; }, 20);
 
         const auto& v = m.getByGroup<FakeTab>("g");
         QCOMPARE(v.size(), 2);
@@ -33,7 +33,7 @@ private slots:
         ModuleManager m;
         for (const char* g : {"zeta", "", "alpha"})
             m.registerModule<FakeTab>([] { return QString(); }, g,
-                                      [](AppContext&) { return new FakeTab{0}; });
+                                      [](const ModuleContext&) { return new FakeTab{0}; });
         QCOMPARE(m.getGroups<FakeTab>(), (QList<QString>{"", "alpha", "zeta"}));
     }
 
@@ -41,7 +41,7 @@ private slots:
     {
         ModuleManager m;
         m.registerModule<FakeTab>([] { return QString(); }, "g",
-                                  [](AppContext&) { return new FakeTab{0}; });
+                                  [](const ModuleContext&) { return new FakeTab{0}; });
         QVERIFY(m.getGroups<FakeWindow>().isEmpty());
         QVERIFY(m.getByGroup<FakeWindow>("g").isEmpty());
     }
@@ -50,7 +50,7 @@ private slots:
     {
         ModuleManager a, b;
         a.registerModule<FakeTab>([] { return QString(); }, "g",
-                                  [](AppContext&) { return new FakeTab{0}; });
+                                  [](const ModuleContext&) { return new FakeTab{0}; });
         QCOMPARE(a.getGroups<FakeTab>().size(), 1);
         QVERIFY(b.getGroups<FakeTab>().isEmpty());
     }
@@ -58,9 +58,9 @@ private slots:
     void createPassesContextAndChecksBounds()
     {
         ModuleManager m;
-        AppContext ctx;
+        ModuleContext ctx;
         m.registerModule<FakeTab>([] { return QString(); }, "g",
-                                  [](AppContext&) { return new FakeTab{7}; });
+                                  [](const ModuleContext&) { return new FakeTab{7}; });
         std::unique_ptr<FakeTab> t(m.create<FakeTab>("g", 0, ctx));
         QVERIFY(t);
         QCOMPARE(t->id, 7);

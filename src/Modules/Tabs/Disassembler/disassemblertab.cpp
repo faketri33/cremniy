@@ -1,5 +1,5 @@
 #include "disassemblertab.h"
-#include "app/AppContext.h"
+#include "core/modules/ModuleContext.h"
 #include "disassemblersettings.h"
 #include "disassemblerworker.h"
 
@@ -38,7 +38,7 @@ static QString displayName() {
 }
 
 void registerDisassemblerTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "", [](AppContext& context) { return new DisassemblerTab(context.appSettings()); }, 100);
+    manager.registerModule<TabBase>(&displayName, "", [](const ModuleContext& context) { return new DisassemblerTab(context.settings); }, 100);
 }
 
 static QString normalizeBytes(const QString &bytes)

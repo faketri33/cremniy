@@ -10,13 +10,14 @@
 #include <memory>
 #include <QRegularExpressionValidator>
 #include "core/modules/ModuleManager.h"
+#include "core/modules/ModuleContext.h"
 
 static QString displayName() {
     return QCoreApplication::translate("AsciiCharsRef","ASCII / Unicode Characters");
 }
 
 void registerAsciiCharsRef(ModuleManager& manager) {
-    manager.registerModule<ReferenceBase>(&displayName, "", [](AppContext&) { return new AsciiCharsRef(); });
+    manager.registerModule<ReferenceBase>(&displayName, "", [](const ModuleContext&) { return new AsciiCharsRef(); });
 }
 
 AsciiCharsRef::AsciiCharsRef()
