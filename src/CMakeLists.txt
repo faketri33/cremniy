@@ -40,8 +40,10 @@ find_package(Qt6 6.8.2 REQUIRED COMPONENTS Core Widgets Gui Concurrent LinguistT
 if(BUILD_TESTING)
     find_package(Qt6 6.8.2 REQUIRED COMPONENTS Test)
 endif()
-# AUTOMOC / AUTOUIC / AUTORCC for every target in the project.
+# AUTOMOC and AUTOUIC for every target (qt_standard_project_setup) plus
+# AUTORCC for the .qrc files listed in target sources.
 qt_standard_project_setup()
+set(CMAKE_AUTORCC ON)
 
 include(Libgit2)
 
