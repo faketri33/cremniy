@@ -5,11 +5,6 @@
 #include <QStack>
 #include <cmath>
 
-ReverseCalculatorEngine &ReverseCalculatorEngine::instance() {
-    static ReverseCalculatorEngine inst;
-    return inst;
-}
-
 qulonglong ReverseCalculatorEngine::maskToWidth(qulonglong v, int bits) {
     if (bits >= 64) return v;
     return v & ((1ULL << bits) - 1ULL);

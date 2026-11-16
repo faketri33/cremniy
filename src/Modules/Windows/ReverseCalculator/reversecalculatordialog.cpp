@@ -225,7 +225,7 @@ void ReverseCalculatorDialog::onInputChanged() {
         return;
     }
 
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     const int bits = m_width->currentData().toInt();
     ParseResult res = engine.parseExpression(text, bits);
 
@@ -257,7 +257,7 @@ void ReverseCalculatorDialog::onReturnPressed() {
     const QString text = m_input->text().trimmed();
     if (text.isEmpty()) return;
 
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     const int bits = m_width->currentData().toInt();
     ParseResult res = engine.parseExpression(text, bits);
 
@@ -290,7 +290,7 @@ void ReverseCalculatorDialog::onHistoryItemClicked(QListWidgetItem *item) {
 
 void ReverseCalculatorDialog::onSwapEndian() {
     const int bits = m_width->currentData().toInt();
-    auto &engine = ReverseCalculatorEngine::instance();
+    auto &engine = m_engine;
     ParseResult res = engine.parseExpression(m_input->text(), bits);
     if (!res.ok) return;
 
