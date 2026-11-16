@@ -13,7 +13,6 @@
 
 #include "app/AppContext.h"
 #include "app/WelcomeWindow/WelcomeForm/welcome_form.h"
-#include "core/locale/LanguageManager.h"
 #include "core/update/updatechecker.h"
 #include "libs/CodeEditor/include/languages/LanguageRegistration.h"
 
@@ -33,8 +32,12 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(":/icons/icon.svg"));
 #endif
 
+    // Composition root. Declared after QApplication and before the windows,
+    // so it outlives them and is destroyed before QApplication.
+    AppContext context;
+
     // - - Fonts - -
-    LanguageManager::instance().loadUserDefaultLocale();
+    context.languageManager().loadUserDefaultLocale();
 
     int jbFontRegId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Regular.ttf");
     int jbFontBoldId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Bold.ttf");
@@ -92,10 +95,6 @@ int main(int argc, char *argv[])
     qssThemeFile.close(); // Теперь закрываем правильный файл
 
     a.setStyleSheet(baseStyle + "\n" + themeData);
-
-    // Composition root. Declared after QApplication and before the windows,
-    // so it outlives them and is destroyed before QApplication.
-    AppContext context;
 
     WelcomeForm wf(context);
 

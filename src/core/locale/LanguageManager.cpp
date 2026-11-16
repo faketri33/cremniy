@@ -10,9 +10,10 @@
 
 #include "appsettings.h"
 
-LanguageManager & LanguageManager::instance() {
-    static LanguageManager inst;
-    return inst;
+LanguageManager::~LanguageManager() {
+    // Uninstall explicitly while the application object is still alive.
+    QCoreApplication::removeTranslator(_m_base_translator.get());
+    QCoreApplication::removeTranslator(_m_translator.get());
 }
 
 void LanguageManager::loadUserDefaultLocale() {

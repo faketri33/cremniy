@@ -2,6 +2,7 @@
 #define APPCONTEXT_H
 
 #include "core/git/gitblameservice.h"
+#include "core/locale/LanguageManager.h"
 
 /**
  * @brief Composition root: creates and owns the application-wide services.
@@ -18,9 +19,11 @@ public:
     AppContext(const AppContext &) = delete;
     AppContext &operator=(const AppContext &) = delete;
 
+    LanguageManager &languageManager() { return m_languageManager; }
     GitBlameService &gitBlameService() { return m_gitBlameService; }
 
 private:
+    LanguageManager m_languageManager;
     GitBlameService m_gitBlameService;
 };
 
