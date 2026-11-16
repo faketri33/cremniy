@@ -6,11 +6,14 @@
 #include <QShortcut>
 #include <QWidget>
 
+class AppSettings;
+
 class CodeEditorTab : public TabBase
 {
     Q_OBJECT
 
 private:
+    AppSettings &m_settings;
     /**
      * @brief Виджет редактора кода
     */
@@ -37,7 +40,7 @@ private:
     void openGoToLineDialog();
 
 public:
-    explicit CodeEditorTab(QWidget *parent = nullptr);
+    explicit CodeEditorTab(AppSettings &settings, QWidget *parent = nullptr);
 
     QIcon icon() const override { return QIcon(":/icons/code.svg"); };
     bool gitBlameEnabled() const override { return m_gitBlameEnabled; }

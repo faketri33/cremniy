@@ -4,6 +4,7 @@
 #include "core/git/gitblameservice.h"
 #include "core/locale/LanguageManager.h"
 #include "core/modules/ModuleManager.h"
+#include "core/settings/appsettings.h"
 #include "core/settings/settingsregistry.h"
 #include "ui/MenuBar/menufactory.h"
 
@@ -22,6 +23,7 @@ public:
     AppContext(const AppContext &) = delete;
     AppContext &operator=(const AppContext &) = delete;
 
+    AppSettings &appSettings() { return m_appSettings; }
     SettingsRegistry &settingsRegistry() { return m_settingsRegistry; }
     ModuleManager &moduleManager() { return m_moduleManager; }
     MenuFactory &menuFactory() { return m_menuFactory; }
@@ -29,8 +31,9 @@ public:
     GitBlameService &gitBlameService() { return m_gitBlameService; }
 
 private:
-    LanguageManager m_languageManager;
+    LanguageManager m_languageManager{m_appSettings};
     SettingsRegistry m_settingsRegistry;
+    AppSettings m_appSettings{m_settingsRegistry};
     ModuleManager m_moduleManager;
     MenuFactory m_menuFactory;
     GitBlameService m_gitBlameService;

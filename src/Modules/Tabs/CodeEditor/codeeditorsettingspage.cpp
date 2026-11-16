@@ -35,7 +35,7 @@ SettingsPageDescriptor descriptor()
         &pageTitle,
         100,
         {},
-        [](QWidget* parent) { return new CodeEditorSettingsPage(parent); },
+        [](AppSettings& settings, QWidget* parent) { return new CodeEditorSettingsPage(settings, parent); },
         // Схема настроек модуля: фабрика собирает её, чтобы экспорт/импорт INI
         // знал о модуле, не имея о нём никакой информации в ядре.
         {
@@ -47,8 +47,9 @@ SettingsPageDescriptor descriptor()
 }
 }
 
-CodeEditorSettingsPage::CodeEditorSettingsPage(QWidget* parent)
+CodeEditorSettingsPage::CodeEditorSettingsPage(AppSettings& settings, QWidget* parent)
     : SettingsPage(parent)
+    , m_settings(settings)
 {
     auto* layout = new QVBoxLayout(this);
     m_gitBlameEnabled = new QCheckBox(tr("Enable Git Blame"), this);
@@ -98,10 +99,10 @@ CodeEditorSettingsPage::CodeEditorSettingsPage(QWidget* parent)
 
 void CodeEditorSettingsPage::load()
 {
-    m_gitBlameEnabled->setChecked(CodeEditorSettings::gitBlameEnabled());
+    m_gitBlameEnabled->setChecked(CodeEditorSettings::gitBlameEnabled(m_settings));
     m_options->setEnabled(m_gitBlameEnabled->isChecked());
 
-    const QString color = CodeEditorSettings::gitBlameColor();
+    const QString color = CodeEditorSettings::gitBlameColor(m_settings);
     int colorIndex = m_gitBlameColor->findData(color);
     if (colorIndex < 0) {
         colorIndex = m_gitBlameColor->findData("custom");
@@ -109,7 +110,7 @@ void CodeEditorSettingsPage::load()
         m_gitBlameColor->setItemText(colorIndex, tr("Custom (%1)").arg(color));
     }
     m_gitBlameColor->setCurrentIndex(colorIndex);
-    m_gitBlamePadding->setValue(CodeEditorSettings::gitBlamePadding());
+    m_gitBlamePadding->setValue(CodeEditorSettings::gitBlamePadding(m_settings));
 }
 
 bool CodeEditorSettingsPage::validate(QString* errorMessage) const
@@ -120,9 +121,9 @@ bool CodeEditorSettingsPage::validate(QString* errorMessage) const
 
 void CodeEditorSettingsPage::apply()
 {
-    CodeEditorSettings::setGitBlameEnabled(m_gitBlameEnabled->isChecked());
-    CodeEditorSettings::setGitBlameColor(m_gitBlameColor->currentData().toString());
-    CodeEditorSettings::setGitBlamePadding(m_gitBlamePadding->value());
+    CodeEditorSettings::setGitBlameEnabled(m_settings, m_gitBlameEnabled->isChecked());
+    CodeEditorSettings::setGitBlameColor(m_settings, m_gitBlameColor->currentData().toString());
+    CodeEditorSettings::setGitBlamePadding(m_settings, m_gitBlamePadding->value());
 }
 
 void CodeEditorSettingsPage::chooseCustomColor(int index)
@@ -130,7 +131,7 @@ void CodeEditorSettingsPage::chooseCustomColor(int index)
     if (m_gitBlameColor->itemData(index).toString() != "custom")
         return;
 
-    const QColor color = QColorDialog::getColor(QColor(CodeEditorSettings::gitBlameColor()), this, tr("Select Blame Color"));
+    const QColor color = QColorDialog::getColor(QColor(CodeEditorSettings::gitBlameColor(m_settings)), this, tr("Select Blame Color"));
     if (!color.isValid()) {
         load();
         return;

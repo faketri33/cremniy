@@ -31,13 +31,14 @@ SettingsPageDescriptor descriptor()
         &pageTitle,
         100,
         "application",
-        [](QWidget* parent) { return new GeneralSettingsPage(parent); }
+        [](AppSettings& settings, QWidget* parent) { return new GeneralSettingsPage(settings, parent); }
     };
 }
 }
 
-GeneralSettingsPage::GeneralSettingsPage(QWidget* parent)
+GeneralSettingsPage::GeneralSettingsPage(AppSettings& settings, QWidget* parent)
     : SettingsPage(parent)
+    , m_settings(settings)
 {
     auto* layout = new QVBoxLayout(this);
     auto* form = new QFormLayout();
@@ -58,7 +59,7 @@ GeneralSettingsPage::GeneralSettingsPage(QWidget* parent)
 
 void GeneralSettingsPage::load()
 {
-    const QString locale = AppSettings::language();
+    const QString locale = m_settings.language();
     const int index = m_languageCombo->findData(locale);
     m_languageCombo->setCurrentIndex(index >= 0 ? index : 0);
 }
@@ -76,10 +77,10 @@ bool GeneralSettingsPage::validate(QString* errorMessage) const
 void GeneralSettingsPage::apply()
 {
     const QString locale = m_languageCombo->currentData().toString();
-    if (locale == AppSettings::language())
+    if (locale == m_settings.language())
         return;
 
-    AppSettings::setLanguage(locale);
+    m_settings.setLanguage(locale);
     QMessageBox::information(this, tr("Information"), tr("Restart the IDE to apply the language everywhere."));
 }
 

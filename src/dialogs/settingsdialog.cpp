@@ -165,7 +165,7 @@ void SettingsDialog::loadPages()
             categories.insert(descriptor.categoryId, category);
         }
 
-        auto* page = descriptor.createPage(m_pagesWidget);
+        auto* page = descriptor.createPage(m_context.appSettings(), m_pagesWidget);
         page->load();
         m_pages.append(page);
 
@@ -203,7 +203,7 @@ void SettingsDialog::onExportIni()
         return;
 
     QString error;
-    if (!AppSettings::exportToIni(m_context.settingsRegistry(), file, &error)) {
+    if (!m_context.appSettings().exportToIni(file, &error)) {
         QMessageBox::warning(this, tr("Export failed"), error);
         return;
     }
@@ -217,7 +217,7 @@ void SettingsDialog::onImportIni()
         return;
 
     QString error;
-    if (!AppSettings::importFromIni(m_context.settingsRegistry(), file, &error)) {
+    if (!m_context.appSettings().importFromIni(file, &error)) {
         QMessageBox::warning(this, tr("Import failed"), error);
         return;
     }

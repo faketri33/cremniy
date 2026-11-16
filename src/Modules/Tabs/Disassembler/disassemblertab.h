@@ -26,12 +26,14 @@ class DisasmTextHighlighter;
 class QListWidget;
 
 
+class AppSettings;
+
 class DisassemblerTab : public TabBase
 {
     Q_OBJECT
 
 public:
-    explicit DisassemblerTab(QWidget *parent = nullptr);
+    explicit DisassemblerTab(AppSettings &settings, QWidget *parent = nullptr);
     ~DisassemblerTab();
 
     QIcon icon() const override { return QIcon(":/icons/dasm.svg"); };
@@ -56,7 +58,8 @@ public:
     };
 
 signals:
-    void requestDisassembly(const QString &filePath, const QString &arch);
+    void requestDisassembly(const QString &filePath, const QString &arch,
+                            const DisassemblerSettings::Snapshot &settings);
 
 public slots:
 
@@ -107,6 +110,7 @@ private:
     QString autoCommentForLine(const LineInfo &li) const;
     bool tryResolveStringRefAddr(const LineInfo &li, quint64 *outAddr) const;
 
+    AppSettings &m_settings;
     std::unique_ptr<InstructionHelpService> m_instructionHelp; // created on first use
 
     QThread            *m_thread  = nullptr;

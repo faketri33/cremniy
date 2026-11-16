@@ -1,4 +1,5 @@
 #include "codeeditortab.h"
+#include "app/AppContext.h"
 #include "utils/utils.h"
 #include "libs/CodeEditor/include/widgets/CustomCodeEditor.h"
 #include "libs/CodeEditor/include/languages/LanguageRegistry.h"
@@ -20,11 +21,12 @@ static QString displayName() {
 }
 
 void registerCodeEditorTab(ModuleManager& manager) {
-    manager.registerModule<TabBase>(&displayName, "always", [](AppContext&) { return new CodeEditorTab(); }, 100);
+    manager.registerModule<TabBase>(&displayName, "always", [](AppContext& context) { return new CodeEditorTab(context.appSettings()); }, 100);
 }
 
-CodeEditorTab::CodeEditorTab(QWidget* parent)
+CodeEditorTab::CodeEditorTab(AppSettings& settings, QWidget* parent)
     : TabBase(parent)
+    , m_settings(settings)
 {
 
     auto* rootLayout = new QVBoxLayout(this);
@@ -97,21 +99,21 @@ CodeEditorTab::CodeEditorTab(QWidget* parent)
 
     connect(m_goToLineShortcut, &QShortcut::activated, this, &CodeEditorTab::openGoToLineDialog);
 
-    m_gitBlameEnabled = CodeEditorSettings::gitBlameEnabled();
+    m_gitBlameEnabled = CodeEditorSettings::gitBlameEnabled(m_settings);
     m_codeEditorWidget->setGitBlameEnabled(m_gitBlameEnabled);
-    m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor());
-    m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding());
+    m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor(m_settings));
+    m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding(m_settings));
 
-    connect(SettingsNotifier::instance(), &SettingsNotifier::settingsChanged,
+    connect(&m_settings, &AppSettings::settingsChanged,
             this, [this](const QString &key) {
         // Модуль сам знает свои ключи и сам решает, что изменилось;
         // ядро лишь сообщает «такой-то ключ поменялся».
         if (key == CodeEditorSettings::keyGitBlameEnabled()) {
-            setGitBlameSlot(CodeEditorSettings::gitBlameEnabled());
+            setGitBlameSlot(CodeEditorSettings::gitBlameEnabled(m_settings));
         } else if (key == CodeEditorSettings::keyGitBlameColor()) {
-            m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor());
+            m_codeEditorWidget->setGitBlameColor(CodeEditorSettings::gitBlameColor(m_settings));
         } else if (key == CodeEditorSettings::keyGitBlamePadding()) {
-            m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding());
+            m_codeEditorWidget->setGitBlamePadding(CodeEditorSettings::gitBlamePadding(m_settings));
         }
     });
 }
@@ -207,8 +209,8 @@ void CodeEditorTab::setGitBlameSlot(bool checked)
         return;
 
     m_gitBlameEnabled = checked;
-    if (CodeEditorSettings::gitBlameEnabled() != checked)
-        CodeEditorSettings::setGitBlameEnabled(checked);
+    if (CodeEditorSettings::gitBlameEnabled(m_settings) != checked)
+        CodeEditorSettings::setGitBlameEnabled(m_settings, checked);
 
     const bool effectiveEnabled = checked && !m_largeFileMode;
     m_codeEditorWidget->setGitBlameEnabled(effectiveEnabled);

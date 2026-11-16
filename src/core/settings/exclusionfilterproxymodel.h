@@ -4,12 +4,14 @@
 #include <QSortFilterProxyModel>
 #include <QStringList>
 
+class AppSettings;
+
 class ExclusionFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    explicit ExclusionFilterProxyModel(QObject *parent = nullptr);
+    explicit ExclusionFilterProxyModel(AppSettings &settings, QObject *parent = nullptr);
 
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
         const QModelIndex &parent) override;
@@ -24,6 +26,7 @@ private slots:
 private:
     static bool globMatch(const QString &pattern, const QString &text);
 
+    AppSettings &m_appSettings;
     QStringList m_patterns;
 };
 

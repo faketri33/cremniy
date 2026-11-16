@@ -10,18 +10,21 @@ class QPlainTextEdit;
 class QSpinBox;
 class QWidget;
 
+class AppSettings;
+
 class DisassemblerSettingsPage : public SettingsPage
 {
     Q_OBJECT
 
 public:
-    explicit DisassemblerSettingsPage(QWidget* parent = nullptr);
+    explicit DisassemblerSettingsPage(AppSettings& settings, QWidget* parent = nullptr);
 
     void load() override;
     bool validate(QString* errorMessage) const override;
     void apply() override;
 
 private:
+    AppSettings& m_settings;
     void updateUiState();
     void updateDependencyStatus();
     void browseObjdump();

@@ -5,11 +5,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-ExclusionFilterProxyModel::ExclusionFilterProxyModel(QObject *parent)
+ExclusionFilterProxyModel::ExclusionFilterProxyModel(AppSettings &settings, QObject *parent)
     : QSortFilterProxyModel(parent)
+    , m_appSettings(settings)
 {
     reloadPatterns();
-    connect(SettingsNotifier::instance(), &SettingsNotifier::excludedPatternsChanged,
+    connect(&m_appSettings, &AppSettings::excludedPatternsChanged,
             this, &ExclusionFilterProxyModel::reloadPatterns);
 }
 
@@ -34,7 +35,7 @@ bool ExclusionFilterProxyModel::dropMimeData(const QMimeData *data, Qt::DropActi
 
 void ExclusionFilterProxyModel::reloadPatterns()
 {
-    const QStringList raw = AppSettings::excludedPatterns();
+    const QStringList raw = m_appSettings.excludedPatterns();
     m_patterns.clear();
     m_patterns.reserve(raw.size());
     for (const QString &p : raw) {

@@ -17,7 +17,7 @@ LanguageManager::~LanguageManager() {
 }
 
 void LanguageManager::loadUserDefaultLocale() {
-    setLocale(AppSettings::language());
+    setLocale(m_settings.language());
 }
 
 void LanguageManager::setLocale(const QString& locale) {
@@ -36,7 +36,7 @@ void LanguageManager::setLocale(const QString& locale) {
         QApplication::installTranslator(_m_translator.get());
     }
 
-    AppSettings::setLanguage(locale);
+    m_settings.setLanguage(locale);
 }
 
 QString LanguageManager::translationsPath() {

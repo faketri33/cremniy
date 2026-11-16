@@ -12,13 +12,16 @@
 #include "config.h"
 
 
+class AppSettings;
+
 class LanguageManager {
 private:
+    AppSettings& m_settings;
     std::unique_ptr<QTranslator> _m_base_translator;
     std::unique_ptr<QTranslator> _m_translator;
 
 public:
-    LanguageManager() = default;
+    explicit LanguageManager(AppSettings& settings) : m_settings(settings) {}
     ~LanguageManager();
     LanguageManager(const LanguageManager&) = delete;
     LanguageManager& operator=(const LanguageManager&) = delete;

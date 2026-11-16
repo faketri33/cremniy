@@ -5,18 +5,21 @@
 
 class QComboBox;
 
+class AppSettings;
+
 class GeneralSettingsPage : public SettingsPage
 {
     Q_OBJECT
 
 public:
-    explicit GeneralSettingsPage(QWidget* parent = nullptr);
+    explicit GeneralSettingsPage(AppSettings& settings, QWidget* parent = nullptr);
 
     void load() override;
     bool validate(QString* errorMessage) const override;
     void apply() override;
 
 private:
+    AppSettings& m_settings;
     QComboBox* m_languageCombo = nullptr;
 };
 

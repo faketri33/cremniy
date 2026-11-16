@@ -67,7 +67,7 @@ IDEWindow::IDEWindow(AppContext &context, const QString &ProjectPath, QWidget *p
     m_filesTabWidget->setObjectName("filesTabWidget");
 
     const auto model = new QFileSystemModel();
-    const auto proxy = new ExclusionFilterProxyModel();
+    const auto proxy = new ExclusionFilterProxyModel(m_context.appSettings());
 
     m_filesTreeView = new FileTreePanel(this, model, proxy, ProjectPath);
     leftLayout->addWidget(m_filesTreeView, 1);
@@ -198,7 +198,7 @@ void IDEWindow::startFind(const SearchOptions& options)
     }
 
     SearchOptions effectiveOptions = options;
-    effectiveOptions.excludedPatterns = AppSettings::excludedPatterns();
+    effectiveOptions.excludedPatterns = m_context.appSettings().excludedPatterns();
     const SearchScope documentScope = options.scope == SearchScope::CurrentFile
         ? SearchScope::CurrentFile
         : SearchScope::OpenFiles;
