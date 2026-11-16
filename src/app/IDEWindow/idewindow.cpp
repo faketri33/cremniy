@@ -442,7 +442,7 @@ void IDEWindow::on_SaveFile() {
 }
 
 void IDEWindow::on_openSettings() {
-    SettingsDialog dlg(this);
+    SettingsDialog dlg(m_context, this);
     dlg.exec();
 }
 

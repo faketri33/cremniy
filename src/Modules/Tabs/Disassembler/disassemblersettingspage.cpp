@@ -31,27 +31,30 @@ QString pageTitle()
     return QCoreApplication::translate("DisassemblerTab", "Disassembler");
 }
 
-const bool registered = SettingsRegistry::instance().registerModulePage("disassembler", {
-    "modules.disassembler",
-    "modules",
-    &categoryTitle,
-    300,
-    &pageTitle,
-    200,
-    {},
-    [](QWidget* parent) { return new DisassemblerSettingsPage(parent); },
-    // Схема настроек этого модуля: фабрика собирает её, чтобы экспорт/
-    // импорт INI знал о модуле, не имея о нём никакой информации в ядре.
-    {
-        { DisassemblerSettings::keyBackend(), static_cast<int>(DisassemblerSettings::Backend::Objdump) },
-        { DisassemblerSettings::keyObjdumpPath(), QString() },
-        { DisassemblerSettings::keyRadare2Path(), QString() },
-        { DisassemblerSettings::keyInsnLimitPerSection(), 4000 },
-        { DisassemblerSettings::keyRadare2AnalysisLevel(), static_cast<int>(DisassemblerSettings::AnalysisLevel::None) },
-        { DisassemblerSettings::keyAsmSyntax(), static_cast<int>(DisassemblerSettings::Syntax::Intel) },
-        { DisassemblerSettings::keyRadare2PreCommands(), QString() },
-    }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "modules.disassembler",
+        "modules",
+        &categoryTitle,
+        300,
+        &pageTitle,
+        200,
+        {},
+        [](QWidget* parent) { return new DisassemblerSettingsPage(parent); },
+        // Схема настроек этого модуля: фабрика собирает её, чтобы экспорт/
+        // импорт INI знал о модуле, не имея о нём никакой информации в ядре.
+        {
+            { DisassemblerSettings::keyBackend(), static_cast<int>(DisassemblerSettings::Backend::Objdump) },
+            { DisassemblerSettings::keyObjdumpPath(), QString() },
+            { DisassemblerSettings::keyRadare2Path(), QString() },
+            { DisassemblerSettings::keyInsnLimitPerSection(), 4000 },
+            { DisassemblerSettings::keyRadare2AnalysisLevel(), static_cast<int>(DisassemblerSettings::AnalysisLevel::None) },
+            { DisassemblerSettings::keyAsmSyntax(), static_cast<int>(DisassemblerSettings::Syntax::Intel) },
+            { DisassemblerSettings::keyRadare2PreCommands(), QString() },
+        }
+    };
+}
 
 QString resolvedExecutable(const QString& userPath, const QString& executableName)
 {
@@ -274,4 +277,9 @@ void DisassemblerSettingsPage::testTools()
     }
     QMessageBox::information(this, tr("Tool check"), results.join('\n'));
     updateDependencyStatus();
+}
+
+void registerDisassemblerSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerModulePage("disassembler", descriptor());
 }

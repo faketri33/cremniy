@@ -25,23 +25,26 @@ QString pageTitle()
     return QCoreApplication::translate("CodeEditorTab", "Code");
 }
 
-const bool registered = SettingsRegistry::instance().registerModulePage("codeEditor", {
-    "modules.codeEditor",
-    "modules",
-    &categoryTitle,
-    300,
-    &pageTitle,
-    100,
-    {},
-    [](QWidget* parent) { return new CodeEditorSettingsPage(parent); },
-    // Схема настроек модуля: фабрика собирает её, чтобы экспорт/импорт INI
-    // знал о модуле, не имея о нём никакой информации в ядре.
-    {
-        { CodeEditorSettings::keyGitBlameEnabled(), false },
-        { CodeEditorSettings::keyGitBlameColor(), QStringLiteral("#6D6552") },
-        { CodeEditorSettings::keyGitBlamePadding(), 6 },
-    }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "modules.codeEditor",
+        "modules",
+        &categoryTitle,
+        300,
+        &pageTitle,
+        100,
+        {},
+        [](QWidget* parent) { return new CodeEditorSettingsPage(parent); },
+        // Схема настроек модуля: фабрика собирает её, чтобы экспорт/импорт INI
+        // знал о модуле, не имея о нём никакой информации в ядре.
+        {
+            { CodeEditorSettings::keyGitBlameEnabled(), false },
+            { CodeEditorSettings::keyGitBlameColor(), QStringLiteral("#6D6552") },
+            { CodeEditorSettings::keyGitBlamePadding(), 6 },
+        }
+    };
+}
 }
 
 CodeEditorSettingsPage::CodeEditorSettingsPage(QWidget* parent)
@@ -136,4 +139,9 @@ void CodeEditorSettingsPage::chooseCustomColor(int index)
     const QString hex = color.name().toUpper();
     m_gitBlameColor->setItemData(index, hex);
     m_gitBlameColor->setItemText(index, tr("Custom (%1)").arg(hex));
+}
+
+void registerCodeEditorSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerModulePage("codeEditor", descriptor());
 }

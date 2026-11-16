@@ -15,6 +15,7 @@
 #include <QStackedWidget>
 #include <QTreeWidget>
 
+#include "app/AppContext.h"
 #include "core/settings/appsettings.h"
 #include "core/settings/settingspage.h"
 #include "core/settings/settingsregistry.h"
@@ -52,8 +53,9 @@ protected:
 };
 }
 
-SettingsDialog::SettingsDialog(QWidget* parent)
+SettingsDialog::SettingsDialog(AppContext& context, QWidget* parent)
     : QDialog(parent)
+    , m_context(context)
 {
     setObjectName("settingsDialog");
     setWindowTitle(tr("Settings"));
@@ -148,7 +150,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 void SettingsDialog::loadPages()
 {
     QHash<QString, QTreeWidgetItem*> categories;
-    for (const auto& descriptor : SettingsRegistry::instance().pages()) {
+    for (const auto& descriptor : m_context.settingsRegistry().pages()) {
         auto* category = categories.value(descriptor.categoryId);
         if (!category) {
             category = new QTreeWidgetItem(m_categories, {descriptor.categoryTitle()});
@@ -201,7 +203,7 @@ void SettingsDialog::onExportIni()
         return;
 
     QString error;
-    if (!AppSettings::exportToIni(file, &error)) {
+    if (!AppSettings::exportToIni(m_context.settingsRegistry(), file, &error)) {
         QMessageBox::warning(this, tr("Export failed"), error);
         return;
     }
@@ -215,7 +217,7 @@ void SettingsDialog::onImportIni()
         return;
 
     QString error;
-    if (!AppSettings::importFromIni(file, &error)) {
+    if (!AppSettings::importFromIni(m_context.settingsRegistry(), file, &error)) {
         QMessageBox::warning(this, tr("Import failed"), error);
         return;
     }

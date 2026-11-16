@@ -45,8 +45,6 @@ struct SettingsPageDescriptor
 class SettingsRegistry
 {
 public:
-    static SettingsRegistry& instance();
-
     bool registerPage(SettingsPageDescriptor descriptor);
     bool registerModulePage(const QString& moduleId, SettingsPageDescriptor descriptor);
     QVector<SettingsPageDescriptor> pages() const;

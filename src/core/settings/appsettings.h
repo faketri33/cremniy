@@ -15,6 +15,8 @@
 // (см. SettingsPageDescriptor::moduleOptions). Экспорт/импорт INI обходит
 // все модульные ключи, зарегистрированные в фабрике настроек, поэтому при
 // добавлении нового модуля core/settings менять не нужно.
+class SettingsRegistry;
+
 class AppSettings
 {
 public:
@@ -35,8 +37,8 @@ public:
     static bool contains(const QString &key);
 
     // Import/export settings to share with others (INI file).
-    static bool exportToIni(const QString &filePath, QString *error = nullptr);
-    static bool importFromIni(const QString &filePath, QString *error = nullptr);
+    static bool exportToIni(const SettingsRegistry &registry, const QString &filePath, QString *error = nullptr);
+    static bool importFromIni(const SettingsRegistry &registry, const QString &filePath, QString *error = nullptr);
 
 private:
     static QString keyLanguage();

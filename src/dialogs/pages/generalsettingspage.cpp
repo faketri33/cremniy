@@ -21,16 +21,19 @@ QString pageTitle()
     return QObject::tr("General");
 }
 
-const bool registered = SettingsRegistry::instance().registerPage({
-    "application.general",
-    "application",
-    &categoryTitle,
-    100,
-    &pageTitle,
-    100,
-    "application",
-    [](QWidget* parent) { return new GeneralSettingsPage(parent); }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "application.general",
+        "application",
+        &categoryTitle,
+        100,
+        &pageTitle,
+        100,
+        "application",
+        [](QWidget* parent) { return new GeneralSettingsPage(parent); }
+    };
+}
 }
 
 GeneralSettingsPage::GeneralSettingsPage(QWidget* parent)
@@ -78,4 +81,9 @@ void GeneralSettingsPage::apply()
 
     AppSettings::setLanguage(locale);
     QMessageBox::information(this, tr("Information"), tr("Restart the IDE to apply the language everywhere."));
+}
+
+void registerGeneralSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerPage(descriptor());
 }

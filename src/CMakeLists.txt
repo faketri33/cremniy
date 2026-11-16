@@ -116,6 +116,7 @@ qt_add_executable(${PROJECT_NAME}
     app/AppContext.h
     app/AppContext.cpp
     app/builtinmodules.h app/builtinmodules.cpp
+    app/builtinsettings.h app/builtinsettings.cpp
     app/IDEWindow/idewindow.cpp
     app/IDEWindow/idewindow.h
     app/WelcomeWindow/WelcomeForm/welcome_form.cpp

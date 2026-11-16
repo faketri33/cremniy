@@ -66,7 +66,7 @@ SettingsNotifier *SettingsNotifier::instance()
     return &s;
 }
 
-bool AppSettings::exportToIni(const QString &filePath, QString *error)
+bool AppSettings::exportToIni(const SettingsRegistry &registry, const QString &filePath, QString *error)
 {
     const QFileInfo fi(filePath);
     if (fi.filePath().trimmed().isEmpty()) {
@@ -79,7 +79,7 @@ bool AppSettings::exportToIni(const QString &filePath, QString *error)
     // Экспортируем всё, что знает ядро: настройки приложения и все ключи,
     // которые модули объявили в фабрике настроек. Хардкод-список исчез:
     // новый модуль добавляется в экспорт автоматически через свою схему.
-    const QStringList moduleKeys = SettingsRegistry::instance().moduleOptionKeys();
+    const QStringList moduleKeys = registry.moduleOptionKeys();
     for (const QString& key : {keyLanguage(), keyExcludedPatterns()}) {
         if (settings().contains(key))
             out.setValue(key, settings().value(key));
@@ -96,7 +96,7 @@ bool AppSettings::exportToIni(const QString &filePath, QString *error)
     return true;
 }
 
-bool AppSettings::importFromIni(const QString &filePath, QString *error)
+bool AppSettings::importFromIni(const SettingsRegistry &registry, const QString &filePath, QString *error)
 {
     const QFileInfo fi(filePath);
     if (!fi.exists() || !fi.isFile()) {
@@ -111,7 +111,7 @@ bool AppSettings::importFromIni(const QString &filePath, QString *error)
     }
 
     // Импортируем только известные ключи: приложение + схема модулей.
-    const QStringList moduleKeys = SettingsRegistry::instance().moduleOptionKeys();
+    const QStringList moduleKeys = registry.moduleOptionKeys();
 
     bool excludedPatternsChanged = false;
     QSet<QString> changedModuleKeys;

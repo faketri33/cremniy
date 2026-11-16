@@ -19,16 +19,19 @@ QString pageTitle()
     return QObject::tr("Files");
 }
 
-const bool registered = SettingsRegistry::instance().registerPage({
-    "workspace.files",
-    "workspace",
-    &categoryTitle,
-    200,
-    &pageTitle,
-    100,
-    "application",
-    [](QWidget* parent) { return new FilesSettingsPage(parent); }
-});
+SettingsPageDescriptor descriptor()
+{
+    return {
+        "workspace.files",
+        "workspace",
+        &categoryTitle,
+        200,
+        &pageTitle,
+        100,
+        "application",
+        [](QWidget* parent) { return new FilesSettingsPage(parent); }
+    };
+}
 }
 
 FilesSettingsPage::FilesSettingsPage(QWidget* parent)
@@ -76,4 +79,9 @@ void FilesSettingsPage::apply()
             patterns.append(normalized);
     }
     AppSettings::setExcludedPatterns(patterns);
+}
+
+void registerFilesSettingsPage(SettingsRegistry& registry)
+{
+    registry.registerPage(descriptor());
 }
