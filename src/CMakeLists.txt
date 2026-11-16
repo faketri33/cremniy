@@ -223,6 +223,13 @@ if(CREMNIY_ENABLE_PCH)
     )
 endif()
 
+if(BUILD_TESTING)
+    qt_add_executable(appcontexttest app/tests/appcontexttest.cpp)
+    target_link_libraries(appcontexttest PRIVATE cremniy_shell Qt6::Test)
+    add_test(NAME appcontexttest COMMAND appcontexttest)
+    set_tests_properties(appcontexttest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
 # - - Executable - -
 qt_add_executable(${PROJECT_NAME}
     MANUAL_FINALIZATION
