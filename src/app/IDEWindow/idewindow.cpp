@@ -1,4 +1,5 @@
 #include "idewindow.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
 #include "app/AppContext.h"
 #include "core/FindEngine/findengine.h"
 #include "core/settings/appsettings.h"

@@ -1,4 +1,5 @@
 #include "editmenu.h"
+#include "app/IDEWindow/idewindow.h"
 #include <QKeySequence>
 
 EditMenu::EditMenu() : BaseMenu(tr("Edit")) {

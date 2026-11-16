@@ -1,4 +1,5 @@
 #include "filetab.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
 #include <qboxlayout.h>
 #include <qdir.h>
 #include <qevent.h>

@@ -1,8 +1,9 @@
 #ifndef BASEMENU_H
 #define BASEMENU_H
 
-#include "app/IDEWindow/idewindow.h"
 #include <QMenu>
+
+class IDEWindow;
 
 class BaseMenu : public QMenu
 {

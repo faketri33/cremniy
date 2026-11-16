@@ -1,4 +1,5 @@
 #include "viewmenu.h"
+#include "app/IDEWindow/idewindow.h"
 #include <QKeySequence>
 
 #include <QActionGroup>

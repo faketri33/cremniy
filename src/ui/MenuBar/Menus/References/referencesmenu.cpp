@@ -1,4 +1,5 @@
 #include "referencesmenu.h"
+#include "app/IDEWindow/idewindow.h"
 #include "app/AppContext.h"
 #include "core/modules/ModuleManager.h"
 #include "core/modules/ReferenceBase.h"

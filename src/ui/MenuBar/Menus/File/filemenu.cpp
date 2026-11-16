@@ -1,4 +1,5 @@
 #include "filemenu.h"
+#include "app/IDEWindow/idewindow.h"
 
 FileMenu::FileMenu() : BaseMenu(tr("File")) {
 

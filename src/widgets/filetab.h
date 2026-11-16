@@ -2,10 +2,11 @@
 #define FILETAB_H
 
 #include "core/modules/ModuleManager.h"
-#include "ui/ToolsTabWidget/toolstabwidget.h"
 #include <QWidget>
 
 class AppContext;
+class TabBase;
+class ToolsTabWidget;
 
 class FileTab : public QWidget
 {

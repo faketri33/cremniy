@@ -1,4 +1,5 @@
 #include "filestabwidget.h"
+#include "ui/ToolsTabWidget/toolstabwidget.h"
 
 #include "core/file/FileDataBuffer.h"
 #include "Modules/Tabs/CodeEditor/codeeditortab.h"

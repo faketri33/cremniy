@@ -1,4 +1,5 @@
 #include "gitmenu.h"
+#include "app/IDEWindow/idewindow.h"
 #include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
 #include <QApplication>

@@ -13,7 +13,7 @@ private:
     QAction* m_closeProject;
 public:
     FileMenu();
-    void setupConnections(IDEWindow* ideWind);
+    void setupConnections(IDEWindow* ideWind) override;
 };
 
 #endif // FILEMENU_H

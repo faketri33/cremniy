@@ -1,4 +1,5 @@
 #include "buildmenu.h"
+#include "app/IDEWindow/idewindow.h"
 
 BuildMenu::BuildMenu() : BaseMenu(tr("Build")) {
     m_build = new QAction(tr("Build"), this);

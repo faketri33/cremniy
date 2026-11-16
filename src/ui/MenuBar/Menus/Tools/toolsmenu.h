@@ -8,6 +8,7 @@
 
 class AppContext;
 class IDEWindow;
+class TabBase;
 class QAction;
 
 class ToolsMenu : public BaseMenu
@@ -17,7 +18,7 @@ private:
 
 public:
     explicit ToolsMenu(AppContext& context);
-    void setupConnections(IDEWindow* ideWind);
+    void setupConnections(IDEWindow* ideWind) override;
 
 signals:
     void openTabModule(ModuleDescription<TabBase> desc);

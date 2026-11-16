@@ -16,7 +16,7 @@ private:
     QAction* m_fileTree;
 public:
     ViewMenu();
-    void setupConnections(IDEWindow* ideWind);
+    void setupConnections(IDEWindow* ideWind) override;
 };
 
 #endif // VIEWMENU_H

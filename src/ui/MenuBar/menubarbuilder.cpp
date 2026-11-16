@@ -1,5 +1,6 @@
 #include "menubarbuilder.h"
 #include "app/AppContext.h"
+#include "app/IDEWindow/idewindow.h"
 #include "menufactory.h"
 
 MenuBarBuilder::MenuBarBuilder(QMenuBar* mBar, IDEWindow *ideWind) :
