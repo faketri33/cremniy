@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <QFileSystemModel>
 #include <QPointer>
 #include <QVBoxLayout>
@@ -37,7 +38,7 @@ private:
     QTreeView* m_treeView;
     QSortFilterProxyModel* m_proxy;
     QFileSystemModel* m_fileModel;
-    IconProvider* m_iconProvider;
+    std::unique_ptr<IconProvider> m_iconProvider;
 
     QAction* m_createFile{};
     QAction* m_createDir{};

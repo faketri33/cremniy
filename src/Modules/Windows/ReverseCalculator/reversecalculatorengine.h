@@ -32,7 +32,7 @@ public:
 
 private:
     struct Token {
-        enum Type { Number, Operator, OpenParen, CloseParen } type;
+        enum class Type { Number, Operator, OpenParen, CloseParen } type;
         QString value;
         int precedence = 0;
         bool rightAssociative = false;

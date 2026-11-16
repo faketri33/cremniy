@@ -178,7 +178,7 @@ void BinaryTab::pageModifyDataSlot(){
 }
 
 void BinaryTab::setFile(QString filepath){
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 }
 
 void BinaryTab::setTabData(){

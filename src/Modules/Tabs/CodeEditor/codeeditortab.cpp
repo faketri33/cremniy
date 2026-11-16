@@ -157,7 +157,7 @@ bool CodeEditorTab::revealSearchMatch(int oneBasedLine, int zeroBasedColumn, int
 
 void CodeEditorTab::setFile(QString filepath)
 {
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
     m_codeEditorWidget->setFileExt(m_codeEditorWidget->syntaxKeyForPath(filepath));
     m_currentLang = detectLanguage(filepath);
 

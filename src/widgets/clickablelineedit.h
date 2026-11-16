@@ -2,6 +2,7 @@
 #define CLICKABLELINEEDIT_H
 
 #include <QLineEdit>
+#include <QMetaMethod>
 #include <QDir>
 #include <QMouseEvent>
 #include <qfiledialog.h>
@@ -19,7 +20,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override {
         emit clicked();
 
-        if (receivers(SIGNAL(clicked())) == 0) {
+        if (!isSignalConnected(QMetaMethod::fromSignal(&ClickableLineEdit::clicked))) {
             QString dir = QFileDialog::getExistingDirectory(
                 this,
                 tr("Choose Directory"),

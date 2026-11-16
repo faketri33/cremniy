@@ -337,8 +337,7 @@ void ChipView::setModifiedPins(const QSet<QString>& pins)
 }
 void STM32PinoutTab::setFile(QString filepath)
 {
-    delete m_fileContext;
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 
     if (!filepath.endsWith(".ioc", Qt::CaseInsensitive)) {
         m_microcontrollerInfo->setText("Not a .ioc file.");

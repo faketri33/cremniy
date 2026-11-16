@@ -276,7 +276,7 @@ DisassemblerTab::~DisassemblerTab()
 }
 
 void DisassemblerTab::setFile(QString filepath){
-    m_fileContext = new FileContext(filepath);
+    m_fileContext = std::make_unique<FileContext>(filepath);
 }
 
 void DisassemblerTab::setTabData()
