@@ -1,15 +1,9 @@
 #include "toolsmenu.h"
-#include "ui/MenuBar/menufactory.h"
 #include "core/modules/ModuleManager.h"
 #include <QKeySequence>
 #include <QAction>
 
 #include "core/modules/WindowBase.h"
-
-static bool registered = []() {
-  MenuFactory::instance().registerMenu("5", []() { return new ToolsMenu(); });
-  return true;
-}();
 
 ToolsMenu::ToolsMenu() : BaseMenu(tr("Tools")) {
     QMenu* tabModulesMenu = new QMenu(tr("Tabs"));

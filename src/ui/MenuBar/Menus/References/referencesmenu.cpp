@@ -1,14 +1,6 @@
 #include "referencesmenu.h"
 #include "core/modules/ModuleManager.h"
 #include "core/modules/ReferenceBase.h"
-#include "ui/MenuBar/menufactory.h"
-
-static bool registered = [](){
-    MenuFactory::instance().registerMenu("6", [](){
-        return new ReferencesMenu();
-    });
-    return true;
-}();
 
 ReferencesMenu::ReferencesMenu() : BaseMenu(tr("References")) {
     QList<QString> groups = ModuleManager::instance().getGroups<ReferenceBase>();

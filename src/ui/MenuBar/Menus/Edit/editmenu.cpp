@@ -1,11 +1,5 @@
 #include "editmenu.h"
-#include "ui/MenuBar/menufactory.h"
 #include <QKeySequence>
-
-static bool registered = []() {
-  MenuFactory::instance().registerMenu("2", []() { return new EditMenu(); });
-  return true;
-}();
 
 EditMenu::EditMenu() : BaseMenu(tr("Edit")) {
 

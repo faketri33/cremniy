@@ -1,16 +1,12 @@
 #include "menufactory.h"
 
-MenuFactory& MenuFactory::instance() {
-    static MenuFactory inst;
-    return inst;
-}
-
 void MenuFactory::registerMenu(const QString& id, Creator creator) {
-    m_creators[id] = creator;
+    m_creators[id] = std::move(creator);
 }
 
-BaseMenu* MenuFactory::create(const QString& id) {
-    return m_creators.contains(id) ? m_creators[id]() : nullptr;
+BaseMenu* MenuFactory::create(const QString& id, AppContext& context) const {
+    const auto it = m_creators.constFind(id);
+    return it != m_creators.cend() ? it.value()(context) : nullptr;
 }
 
 QStringList MenuFactory::availableMenus() const {

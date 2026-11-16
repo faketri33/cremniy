@@ -3,6 +3,7 @@
 
 #include "core/git/gitblameservice.h"
 #include "core/locale/LanguageManager.h"
+#include "ui/MenuBar/menufactory.h"
 
 /**
  * @brief Composition root: creates and owns the application-wide services.
@@ -15,15 +16,17 @@
 class AppContext
 {
 public:
-    AppContext() = default;
+    AppContext();
     AppContext(const AppContext &) = delete;
     AppContext &operator=(const AppContext &) = delete;
 
+    MenuFactory &menuFactory() { return m_menuFactory; }
     LanguageManager &languageManager() { return m_languageManager; }
     GitBlameService &gitBlameService() { return m_gitBlameService; }
 
 private:
     LanguageManager m_languageManager;
+    MenuFactory m_menuFactory;
     GitBlameService m_gitBlameService;
 };
 

@@ -1,7 +1,6 @@
 #include "gitmenu.h"
 #include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
-#include "ui/MenuBar/menufactory.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QTextEdit>
@@ -12,14 +11,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QDir>
-
-// регистрируем меню
-static bool registered = [](){
-    MenuFactory::instance().registerMenu("7", [](){
-        return new GitMenu();
-    });
-    return true;
-}();
 
 GitMenu::GitMenu() : BaseMenu(tr("Git"))
 {

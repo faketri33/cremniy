@@ -114,6 +114,7 @@ qt_add_executable(${PROJECT_NAME}
 
     # App
     app/AppContext.h
+    app/AppContext.cpp
     app/IDEWindow/idewindow.cpp
     app/IDEWindow/idewindow.h
     app/WelcomeWindow/WelcomeForm/welcome_form.cpp
@@ -198,6 +199,7 @@ qt_add_executable(${PROJECT_NAME}
     ui/MenuBar/menubarbuilder.h ui/MenuBar/menubarbuilder.cpp
     ui/MenuBar/menufactory.h ui/MenuBar/menufactory.cpp
     ui/MenuBar/basemenu.h
+    ui/MenuBar/builtinmenus.h ui/MenuBar/builtinmenus.cpp
     dialogs/configurebuild.h dialogs/configurebuild.cpp
     core/project/project_info_manager.h core/project/project_info_manager.cpp
 

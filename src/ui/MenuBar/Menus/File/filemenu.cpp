@@ -1,12 +1,4 @@
 #include "filemenu.h"
-#include "ui/MenuBar/menufactory.h"
-
-static bool registered = [](){
-    MenuFactory::instance().registerMenu("1", [](){
-        return new FileMenu();
-    });
-    return true;
-}();
 
 FileMenu::FileMenu() : BaseMenu(tr("File")) {
 

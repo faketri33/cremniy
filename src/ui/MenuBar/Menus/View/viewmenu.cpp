@@ -1,15 +1,7 @@
 #include "viewmenu.h"
-#include "ui/MenuBar/menufactory.h"
 #include <QKeySequence>
 
 #include <QActionGroup>
-
-static bool registered = [](){
-    MenuFactory::instance().registerMenu("3", [](){
-        return new ViewMenu();
-    });
-    return true;
-}();
 
 ViewMenu::ViewMenu() : BaseMenu(tr("View")) {
     m_wordWrap = new QAction(tr("Word Wrap"), this);
