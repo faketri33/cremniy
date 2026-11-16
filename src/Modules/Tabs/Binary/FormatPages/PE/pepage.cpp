@@ -4,12 +4,10 @@
 #include <QHeaderView>
 #include <QtEndian>
 
-static bool registered = [](){
-    FormatPageFactory::instance().registerPage("3", [](){
-        return new PEPage();
-    });
-    return true;
-}();
+void registerPePage(FormatPageFactory& factory)
+{
+    factory.registerPage("3", []() { return new PEPage(); });
+}
 
 PEPage::PEPage(QWidget *parent)
     : FormatPage(parent)

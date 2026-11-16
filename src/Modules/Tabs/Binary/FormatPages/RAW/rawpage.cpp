@@ -2,12 +2,10 @@
 #include "formatpagefactory.h"
 #include "core/file/FileDataBuffer.h"
 
-static bool registered = [](){
-    FormatPageFactory::instance().registerPage("1", [](){
-        return new RAWPage();
-    });
-    return true;
-}();
+void registerRawPage(FormatPageFactory& factory)
+{
+    factory.registerPage("1", []() { return new RAWPage(); });
+}
 
 RAWPage::RAWPage(QWidget *parent)
     : FormatPage(parent){

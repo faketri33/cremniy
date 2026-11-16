@@ -117,7 +117,8 @@ bool BinaryTab::revealSearchMatch(int oneBasedLine, int zeroBasedColumn, int len
 
 void BinaryTab::createPages(){
 
-    auto& formatFactory = FormatPageFactory::instance();
+    FormatPageFactory formatFactory;
+    registerBuiltinFormatPages(formatFactory);
 
     qDebug() << "FormatPageFactory constr: for id in avPages";
     for (const QString& toolID : formatFactory.availablePages()){
