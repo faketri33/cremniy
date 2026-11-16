@@ -3,10 +3,12 @@
 
 #include "core/modules/TabBase.h"
 #include "disassemblerworker.h"
+#include "instructionhelpservice.h"
 #include <QIcon>
 #include <QWidget>
 #include <QThread>
 #include <QHash>
+#include <memory>
 
 #include <QGuiApplication>
 #include <QClipboard>
@@ -104,6 +106,8 @@ private:
     void jumpToAddress(const QString &addr);
     QString autoCommentForLine(const LineInfo &li) const;
     bool tryResolveStringRefAddr(const LineInfo &li, quint64 *outAddr) const;
+
+    std::unique_ptr<InstructionHelpService> m_instructionHelp; // created on first use
 
     QThread            *m_thread  = nullptr;
     DisassemblerWorker *m_worker  = nullptr;

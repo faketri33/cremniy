@@ -851,9 +851,13 @@ void DisassemblerTab::showInstructionHelpAt(const QPoint &pos, bool forceByCurso
     const QString token = c.selectedText().trimmed();
     const QString line = c.block().text();
 
-    QString tip = InstructionHelpService::instance().tooltipForToken(token, line);
+    // Loaded lazily on first hover, as the former singleton was.
+    if (!m_instructionHelp)
+        m_instructionHelp = std::make_unique<InstructionHelpService>();
+
+    QString tip = m_instructionHelp->tooltipForToken(token, line);
     if (tip.isEmpty())
-        tip = InstructionHelpService::instance().tooltipForLine(line);
+        tip = m_instructionHelp->tooltipForLine(line);
 
     if (tip.isEmpty()) {
         QToolTip::hideText();
