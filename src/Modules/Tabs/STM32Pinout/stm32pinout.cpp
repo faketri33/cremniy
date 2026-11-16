@@ -589,7 +589,7 @@ QByteArray STM32PinoutTab::buildIocBytes() const
     return out;
 }
 
-QStringList STM32PinoutTab::getAllPinsForPackage(const QString& mcuName, const QString& package)
+QStringList STM32PinoutTab::getAllPinsForPackage(const QString& /*mcuName*/, const QString& package)
 {
     QStringList pins;
     QString pkg = package.toUpper();

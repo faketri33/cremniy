@@ -31,7 +31,8 @@ SettingsPageDescriptor descriptor()
         &pageTitle,
         100,
         "application",
-        [](AppSettings& settings, QWidget* parent) { return new GeneralSettingsPage(settings, parent); }
+        [](AppSettings& settings, QWidget* parent) { return new GeneralSettingsPage(settings, parent); },
+        {}
     };
 }
 }

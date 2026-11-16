@@ -132,7 +132,7 @@ static const RefRow kRefRows[] = {
     {"Pause", "E1 1D 45 …", QT_TRANSLATE_NOOP("KeyboardScanCodesRef","Long pause make sequence; break differs")},
 };
 
-KeyboardScancodesRef::KeyboardScancodesRef(QWidget *parent)
+KeyboardScancodesRef::KeyboardScancodesRef(QWidget * /*parent*/)
 {
     initWindow();
     initWidgets();

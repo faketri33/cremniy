@@ -38,7 +38,7 @@ public:
 
     QIcon icon() const override { return QIcon(":/icons/dasm.svg"); };
 
-    void saveToFile(QString path) {}
+    void saveToFile(QString /*path*/) {}
     void setTabData(QByteArray &data);
 
     struct LineInfo {
@@ -68,9 +68,9 @@ public slots:
     void setTabData() override;
     void saveTabData() override;
 
-    void setWordWrapSlot(bool checked) override {};
-    void setTabReplaceSlot(bool checked) override {};
-    void setTabWidthSlot(int width) override {};
+    void setWordWrapSlot(bool /*checked*/) override {}
+    void setTabReplaceSlot(bool /*checked*/) override {}
+    void setTabWidthSlot(int /*width*/) override {}
 
 protected slots:
     // Обработчик изменения выделения из буфера

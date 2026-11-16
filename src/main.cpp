@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
     context.languageManager().loadUserDefaultLocale();
 
     int jbFontRegId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Regular.ttf");
-    int jbFontBoldId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Bold.ttf");
-    int jbFontItalId = QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-Italic.ttf");
 
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(jbFontRegId);
     QString jbFontFamily = !fontFamilies.isEmpty() ? fontFamilies.at(0) : "Sans Serif";

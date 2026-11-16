@@ -204,6 +204,17 @@ target_link_libraries(cremniy_shell
         cremniy_warnings
 )
 
+# Unity builds are limited to first-party targets: third-party code (libvterm,
+# QCodeEditor) defines conflicting file-local symbols.
+if(CREMNIY_UNITY_BUILD)
+    set_target_properties(cremniy_shell PROPERTIES UNITY_BUILD ON)
+    # These files define identically named file-local helpers.
+    set_source_files_properties(
+        dialogs/pages/filessettingspage.cpp
+        dialogs/pages/generalsettingspage.cpp
+        PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+endif()
+
 if(CREMNIY_ENABLE_PCH)
     target_precompile_headers(cremniy_shell PRIVATE
         <QtCore>

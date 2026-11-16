@@ -49,7 +49,7 @@ struct Cursor
 
 class TERMINAL_EXPORT TerminalSurface : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     TerminalSurface(QSize initialGridSize);

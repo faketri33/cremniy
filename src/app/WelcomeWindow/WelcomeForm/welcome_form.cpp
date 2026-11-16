@@ -91,7 +91,7 @@ void WelcomeForm::loadStyles()
 {
     QString styles;
 
-    for (const QString& path : {":/styles/base.qss", ":/styles/welcome.qss"}) {
+    for (const QString path : {":/styles/base.qss", ":/styles/welcome.qss"}) {
         if (QFile f(path); f.open(QIODevice::ReadOnly)) {
             styles += f.readAll();
             f.close();

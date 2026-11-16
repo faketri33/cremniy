@@ -322,7 +322,7 @@ void FilesTabWidget::closeTab(int index) {
     if (tab && tab->isFileUnsaved()) {
         QMessageBox question_save_file(QMessageBox::Question, tr("Save File"), tr("Do you want to save this file?"),QMessageBox::NoButton, this);
         const auto yes = question_save_file.addButton(tr("Yes") ,QMessageBox::YesRole);
-        const auto no = question_save_file.addButton(tr("No"), QMessageBox::NoRole);
+        question_save_file.addButton(tr("No"), QMessageBox::NoRole);
         const auto cancel = question_save_file.addButton(tr("Cancel"), QMessageBox::RejectRole);
 
         question_save_file.exec();

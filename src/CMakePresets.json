@@ -52,6 +52,52 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CREMNIY_SANITIZERS": "address;undefined"
       }
+    },
+    {
+      "name": "ci-linux",
+      "displayName": "CI (Linux, Release, warnings as errors)",
+      "inherits": "release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CREMNIY_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "clazy",
+      "displayName": "Debug + clazy (needs clazy installed)",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clazy"
+      },
+      "environment": {
+        "CLAZY_CHECKS": "level1,no-qstring-allocations"
+      }
+    },
+    {
+      "name": "clang-tidy",
+      "displayName": "Debug + clang-tidy",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CREMNIY_ENABLE_CLANG_TIDY": "ON"
+      }
+    },
+    {
+      "name": "fast",
+      "displayName": "Release with PCH + unity (faster builds)",
+      "inherits": "release",
+      "cacheVariables": {
+        "CREMNIY_ENABLE_PCH": "ON",
+        "CREMNIY_UNITY_BUILD": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -70,6 +116,14 @@
     {
       "name": "asan-ubsan",
       "configurePreset": "asan-ubsan"
+    },
+    {
+      "name": "ci-linux",
+      "configurePreset": "ci-linux"
+    },
+    {
+      "name": "fast",
+      "configurePreset": "fast"
     }
   ],
   "testPresets": [
@@ -89,6 +143,13 @@
       "environment": {
         "ASAN_OPTIONS": "detect_leaks=1",
         "UBSAN_OPTIONS": "print_stacktrace=1"
+      }
+    },
+    {
+      "name": "ci-linux",
+      "configurePreset": "ci-linux",
+      "output": {
+        "outputOnFailure": true
       }
     }
   ]

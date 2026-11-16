@@ -29,7 +29,8 @@ SettingsPageDescriptor descriptor()
         &pageTitle,
         100,
         "application",
-        [](AppSettings& settings, QWidget* parent) { return new FilesSettingsPage(settings, parent); }
+        [](AppSettings& settings, QWidget* parent) { return new FilesSettingsPage(settings, parent); },
+        {}
     };
 }
 }

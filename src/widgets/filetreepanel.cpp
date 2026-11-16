@@ -140,7 +140,7 @@ void FileTreePanel::remove() {
 
     QMessageBox confirmRemove(QMessageBox::Question, tr("Delete"), body, QMessageBox::NoButton);
     const auto yes = confirmRemove.addButton(tr("Yes"), QMessageBox::YesRole);
-    const auto no = confirmRemove.addButton(tr("No"), QMessageBox::NoRole);
+    confirmRemove.addButton(tr("No"), QMessageBox::NoRole);
     confirmRemove.exec();
 
     const auto reply = confirmRemove.clickedButton();
