@@ -24,6 +24,12 @@ project(cremniy VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
 
 message(STATUS "Cremniy version: ${PROJECT_VERSION}")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(Warnings)
+include(Sanitizers)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(CTest)
 
 set(CMAKE_AUTOUIC ON)
@@ -255,6 +261,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Modules/Windows/)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/MenuBar/Menus/)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    cremniy_warnings
     Qt6::Core
     Qt6::Widgets
     Qt6::Gui
