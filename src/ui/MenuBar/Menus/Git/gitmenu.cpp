@@ -1,4 +1,5 @@
 #include "gitmenu.h"
+#include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
 #include "ui/MenuBar/menufactory.h"
 #include <QApplication>
@@ -153,7 +154,7 @@ void GitMenu::setupConnections(IDEWindow* ideWind)
     connect(m_stashList, &QAction::triggered, this, &GitMenu::onStashList);
     connect(m_showLogGraph, &QAction::triggered, this, &GitMenu::onShowLogGraph);
 
-    auto *blameService = GitBlameService::instance();
+    auto *blameService = &ideWind->appContext().gitBlameService();
     connect(m_toggleBlame, &QAction::toggled,
             ideWind, &IDEWindow::on_SetGitBlame);
     connect(ideWind, &IDEWindow::gitBlameEnabledChanged,

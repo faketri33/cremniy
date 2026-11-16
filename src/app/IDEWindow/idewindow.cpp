@@ -1,4 +1,5 @@
 #include "idewindow.h"
+#include "app/AppContext.h"
 #include "core/FindEngine/findengine.h"
 #include "core/settings/appsettings.h"
 #include "QFileSystemModel"
@@ -21,8 +22,8 @@
 #include <qtimer.h>
 #include <QtConcurrent/QtConcurrentRun>
 
-IDEWindow::IDEWindow(const QString &ProjectPath, QWidget *parent)
-    : QMainWindow(parent), m_projectPath(ProjectPath) {
+IDEWindow::IDEWindow(AppContext &context, const QString &ProjectPath, QWidget *parent)
+    : QMainWindow(parent), m_context(context), m_projectPath(ProjectPath) {
     setProperty("projectPath", ProjectPath);
     // - - Window Settings - -
     this->setWindowState(Qt::WindowMaximized);
@@ -62,7 +63,7 @@ IDEWindow::IDEWindow(const QString &ProjectPath, QWidget *parent)
 
     leftLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_filesTabWidget = new FilesTabWidget(this);
+    m_filesTabWidget = new FilesTabWidget(m_context, this);
     m_filesTabWidget->setObjectName("filesTabWidget");
 
     const auto model = new QFileSystemModel();

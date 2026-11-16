@@ -39,7 +39,10 @@ bool samePath(const QString& left, const QString& right)
 
 } // namespace
 
-FilesTabWidget::FilesTabWidget(QWidget *parent) {
+FilesTabWidget::FilesTabWidget(AppContext &context, QWidget *parent)
+    : QTabWidget(parent)
+    , m_context(context)
+{
     connect(this, &QTabWidget::currentChanged, this, &FilesTabWidget::tabSelect);
     connect(tabBar(), &QTabBar::tabMoved, this, &FilesTabWidget::onTabMoved);
     tabBar()->installEventFilter(this);
@@ -89,7 +92,7 @@ void FilesTabWidget::openFile(QString filePath, QString tabTitle) {
     }
 
     // else if file is not opened
-    FileTab *filetab = new FileTab(this, filePath);
+    FileTab *filetab = new FileTab(m_context, this, filePath);
     int new_tab_index = this->addTab(filetab, tabTitle);
     this->setCurrentIndex(new_tab_index);
 

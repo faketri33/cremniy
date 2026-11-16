@@ -13,14 +13,16 @@
 #include "welcome_form.h"
 #include "../RecentProjectsPage/recent_projects_page.h"
 #include "../CreateProjectPage/create_project_page.h"
+#include "app/AppContext.h"
 #include "app/IDEWindow/idewindow.h"
 #include "projects_history_manager.h"
 
 #include <QDir>
 #include <QFile>
 
-WelcomeForm::WelcomeForm(QWidget* parent)
+WelcomeForm::WelcomeForm(AppContext& context, QWidget* parent)
     : QWidget(parent)
+    , m_context(context)
 {
     setWindowTitle("Cremniy");
     resize(500, 380);
@@ -70,7 +72,7 @@ void WelcomeForm::openProject(const QString& path, const QString& language)
 
     hide();
 
-    auto* mw = new IDEWindow(path, nullptr);
+    auto* mw = new IDEWindow(m_context, path, nullptr);
     mw->setAttribute(Qt::WA_DeleteOnClose);
 
     if (this->screen()) mw->setScreen(this->screen());

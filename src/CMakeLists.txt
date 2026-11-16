@@ -113,6 +113,7 @@ qt_add_executable(${PROJECT_NAME}
     main.cpp
 
     # App
+    app/AppContext.h
     app/IDEWindow/idewindow.cpp
     app/IDEWindow/idewindow.h
     app/WelcomeWindow/WelcomeForm/welcome_form.cpp

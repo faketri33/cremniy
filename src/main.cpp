@@ -11,6 +11,7 @@
 #include <QFontDatabase>
 #include <QUrl>
 
+#include "app/AppContext.h"
 #include "app/WelcomeWindow/WelcomeForm/welcome_form.h"
 #include "core/locale/LanguageManager.h"
 #include "core/update/updatechecker.h"
@@ -92,7 +93,11 @@ int main(int argc, char *argv[])
 
     a.setStyleSheet(baseStyle + "\n" + themeData);
 
-    WelcomeForm wf;
+    // Composition root. Declared after QApplication and before the windows,
+    // so it outlives them and is destroyed before QApplication.
+    AppContext context;
+
+    WelcomeForm wf(context);
 
     //cli path selector
     const QStringList args = QCoreApplication::arguments();

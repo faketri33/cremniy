@@ -5,6 +5,7 @@
 #include <qfileinfo.h>
 
 #include "core/file/FileDataBuffer.h"
+#include "app/AppContext.h"
 #include "core/git/gitblameservice.h"
 #include "ui/ToolsTabWidget/toolstabwidget.h"
 #include "core/modules/ModuleManager.h"
@@ -31,8 +32,9 @@ QVector<TabGitBlameLineInfo> toTabBlameLines(const QVector<BlameLineInfo>& lines
 
 } // namespace
 
-ToolsTabWidget::ToolsTabWidget(QWidget *parent, QString path)
+ToolsTabWidget::ToolsTabWidget(AppContext &context, QWidget *parent, QString path)
     : QTabWidget(parent)
+    , m_context(context)
     , m_filePath(std::move(path))
 {
     setTabsClosable(true);
@@ -195,7 +197,7 @@ void ToolsTabWidget::createTab(const ModuleDescription<TabBase>& desc, bool isAl
 
 void ToolsTabWidget::connectGitIntegration(TabBase* tab)
 {
-    GitBlameService* service = GitBlameService::instance();
+    GitBlameService* service = &m_context.gitBlameService();
 
     connect(tab, &TabBase::gitBlameRequested,
             service, &GitBlameService::requestBlame);

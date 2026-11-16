@@ -15,11 +15,6 @@ namespace {
     };
 }// namespace
 
-GitBlameService* GitBlameService::instance() {
-    static GitBlameService service;
-    return &service;
-}
-
 GitBlameService::GitBlameService(QObject* parent)
     : QObject(parent) {
 }

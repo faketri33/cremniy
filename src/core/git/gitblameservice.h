@@ -17,7 +17,7 @@ class GitBlameService final : public QObject {
     Q_OBJECT
 
 public:
-    static GitBlameService* instance();
+    explicit GitBlameService(QObject* parent = nullptr);
 
     void requestBlame(const QString& filePath);
 
@@ -27,8 +27,6 @@ signals:
     void repositoryChanged();
 
 private:
-    explicit GitBlameService(QObject* parent = nullptr);
-
     QHash<QString, quint64> m_requestVersions;
     quint64 m_nextRequestVersion = 0;
 };
